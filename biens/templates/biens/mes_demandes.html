@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mes demandes | Tableau de bord{% endblock %}
+
+{% block content %}
+<h2>Mes demandes</h2>
+
+{% if demandes %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Bien</th>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Message</th>
+                <th>Date</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for demande in demandes %}
+            <tr>
+                <td>{{ demande.bien.titre }}</td>
+                <td>{{ demande.nom_prenom }}</td>
+                <td>{{ demande.email }}</td>
+                <td>{{ demande.telephone }}</td>
+                <td>{{ demande.message|truncatechars:50 }}</td>
+                <td>{{ demande.date_envoi|date:"d/m/Y H:i" }}</td>
+                <td>
+                    {% if demande.lu %}
+                        <span class="badge bg-success">Lu</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Non lu</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Vous n'avez aucune demande pour le moment.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}À propos | Habitat-TOUT-EN-UN{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/a_propos.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Bande pleine largeur avec image de fond -->
+<div class="full-width-hero">
+    <div class="overlay"></div>
+    <div class="hero-text text-center">
+        <p class="hero-subtitle">
+            Habitat-TOUT-EN-UN, une plateforme innovante pour connecter acheteurs, vendeurs et investisseurs immobiliers au Togo.           
+        </p>
+    </div>
+</div>
+
+<!-- Séparateur -->
+<div class="separator my-5 text-center">
+    <hr class="styled-hr">
+</div>
+
+<!-- Section Présentation -->
+<section class="presentation-section container my-5">
+    <div class="row align-items-center">
+        <div class="col-md-6 mb-4">
+            <img src="{% static 'images/immobilier-bg.jpeg' %}" class="img-fluid rounded-4 shadow-sm" alt="Immobilier">
+        </div>
+        <div class="col-md-6">
+            <h2 class="section-title">Qui sommes-nous ?</h2>
+            <p>Nous sommes une équipe passionnée par l’immobilier, la technologie et l’innovation. Notre plateforme simplifie la recherche, la promotion et la gestion des biens immobiliers au Togo.</p>
+            <p>Grâce à une interface intuitive, nous permettons à chacun de trouver ou proposer un bien immobilier en quelques clics.</p>
+           <p> Une plateforme 100% togolaise avec carte interactive
+            Visualisez chaque terrain, maison ou immeuble avec ses dimensions exactes sur une carte.
+            Ajoutez votre bien gratuitement et offrez une transparence totale à vos futurs clients.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Séparateur -->
+<div class="separator my-5 text-center">
+    <hr class="styled-hr">
+</div>
+
+<!-- Valeurs & Engagements -->
+<section class="valeurs-section py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">Nos valeurs & engagements</h2>
+        <div class="row text-center">
+            <div class="col-md-4 mb-4">
+                <h5>🚀 Innovation</h5>
+                <p>Nous utilisons les dernières technologies pour améliorer l'expérience utilisateur.</p>
+            </div>
+            <div class="col-md-4 mb-4">
+                <h5>🤝 Confiance</h5>
+                <p>Chaque annonce est vérifiée pour assurer une fiabilité maximale.</p>
+            </div>
+            <div class="col-md-4 mb-4">
+                <h5>🌍 Accessibilité</h5>
+                <p>Une plateforme inclusive, pensée pour tous, disponible partout.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Séparateur -->
+<div class="separator my-5 text-center">
+    <hr class="styled-hr">
+</div>
+
+<!-- Équipe -->
+<section class="container mb-5">
+    <h2 class="mb-4 fw-bold text-center">Notre équipe</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-4 text-center mb-4">
+            <img src="{% static 'images/contact.png' %}" alt="Bakota KOUTOUMBOGA" class="rounded-circle mb-3 shadow" width="150" height="150">
+            <h5>Bakota KOUTOUMBOGA</h5>
+            <p>Expert SIG & Géomatique</p>
+            <p>Spécialiste du développement de solutions WebGIS et d’analyse spatiale.</p>
+        </div>
+        <div class="col-md-4 text-center mb-4">
+            <img src="{% static 'images/contact.png' %}" alt="KAMBIA POUWEDEOU" class="rounded-circle mb-3 shadow" width="150" height="150">
+            <h5>Kambia Pouwedeou</h5>
+            <p>Expert SIG & Géomatique</p>
+            <p>Expert international en développement de solutions webGIS et d’analyse de données géospatiales.</p>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ article.titre }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-3">{{ article.titre }}</h1>
+    <p class="text-muted">Publié le {{ article.date_publication|date:"d F Y" }} | {{ article.vues }} vues</p>
+    <img src="{{ article.image.url }}" class="img-fluid rounded mb-4" alt="{{ article.titre }}">
+    <div>
+        {{ article.contenu|linebreaks }}
+    </div>
+</div>
+{% endblock %}

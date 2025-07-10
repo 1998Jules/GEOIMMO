@@ -1,0 +1,467 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Liste des biens | Habitat-TOUT-EN-UN{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        .modal-map-container {
+            height: 250px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        .leaflet-polygon {
+            fill-opacity: 0.2;
+            stroke: true;
+            color: #3388ff;
+            weight: 2;
+        }
+        .badge-alaune {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #ffc107;
+            color: #000;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            z-index: 10;
+        }
+        .card {
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-5 fw-bold">Nos Offres Immobilières</h2>
+
+<!-- Section Filtres -->
+<div class="filters-section">
+<div class="row mb-4 bg-white p-3 rounded shadow-sm sticky-top" style="top: 70px; z-index: 1020;">
+    <div class="col-md-3 mb-2">
+        <label for="filter-type" class="form-label">Type de bien</label>
+        <select class="form-select" id="filter-type">
+            <option value="">Tous les types</option>
+            <option value="maison">Maison</option>
+            <option value="appartement">Appartement</option>
+            <option value="terrain">Terrain</option>
+            <option value="bureau">Bureau</option>
+            <option value="chambre">Chambre</option>
+        </select>
+    </div>
+    <div class="col-md-3 mb-2">
+    <label for="filter-statut" class="form-label">Statut</label>
+    <select class="form-select" id="filter-statut">
+        <option value="">Tous les statuts</option>
+        <option value="vente">En vente</option>
+        <option value="location">En location</option>
+        <option value="vendu">Vendu</option>
+        <option value="loué">Loué</option>
+    </select>
+</div>
+
+    
+    <div class="col-md-3 mb-2">
+        <label for="filter-price" class="form-label">Prix max (FCFA)</label>
+        <input type="number" class="form-control" id="filter-price" placeholder="Prix maximum">
+    </div>
+    <div class="col-md-3 mb-2">
+        <label for="filter-surface" class="form-label">Surface min (m²)</label>
+        <input type="number" class="form-control" id="filter-surface" placeholder="Surface minimum">
+    </div>
+    <div class="col-md-3 d-flex align-items-end">
+        <button class="btn btn-primary me-2 w-50" id="apply-filters">
+            <i class="bi bi-funnel"></i> Filtrer
+        </button>
+        <button class="btn btn-outline-secondary w-50" id="reset-filters">
+            <i class="bi bi-arrow-counterclockwise"></i>
+        </button>
+    </div>
+</div>
+</div>
+
+
+
+<!-- Liste des biens -->
+<div class="row justify-content-center" id="biens-container">
+    {% for bien in biens %}
+    <div class="col-md-4 col-sm-6 mb-5" 
+         data-type="{{ bien.type_bien|lower }}" 
+         data-price="{{ bien.prix }}"
+         data-surface="{{ bien.surface }}"
+         data-statut="{{ bien.statut|lower }}">
+        <div class="card shadow-lg position-relative h-100 border-0 rounded-4 overflow-hidden">
+
+            {% if bien.a_la_une %}
+            <div class="badge-alaune">
+                <i class="bi bi-star-fill"></i> À la une
+            </div>
+            {% endif %}
+
+            <div id="carousel{{ bien.id }}" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    {% if bien.image_principale %}
+                    <div class="carousel-item active">
+                        <img src="{{ bien.image_principale.url }}" class="d-block w-100 card-img-top" alt="Image principale">
+                    </div>
+                    {% endif %}
+                    {% for media in bien.medias.all %}
+                    <div class="carousel-item {% if not bien.image_principale and forloop.first %}active{% endif %}">
+                        <img src="{{ media.image.url }}" class="d-block w-100 card-img-top" alt="Image">
+                    </div>
+                    {% endfor %}
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{ bien.id }}" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carousel{{ bien.id }}" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
+            </div>
+
+            <div class="card-body">
+                <h5 class="card-title">{{ bien.titre }}</h5>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="badge bg-primary">{{ bien.get_type_bien_display }}</span>
+                    <span class="badge bg-{% if bien.statut == 'louer' %}warning{% else %}success{% endif %}">
+                        {{ bien.get_statut_display }}
+                    </span>
+                </div>
+                <p class="card-text text-muted small">{{ bien.description|truncatechars:100 }}</p>
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <span class="fw-bold text-primary">{{ bien.prix }} FCFA</span>
+                    <span class="text-muted">{{ bien.surface }} m²</span>
+                </div>
+                <button class="btn btn-outline-primary w-100 mt-3 btn-voir-detail"
+                    data-bien-id="{{ bien.id }}"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modal{{ bien.id }}">
+                    <i class="bi bi-eye"></i> Voir détails
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal{{ bien.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content rounded-4">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ bien.titre }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img src="{% if bien.image_principale %}{{ bien.image_principale.url }}{% elif bien.medias.first %}{{ bien.medias.first.image.url }}{% endif %}" 
+                                 class="img-fluid mb-3 rounded-3" alt="Image principale">
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Type :</strong> {{ bien.get_type_bien_display }}</p>
+                            <p><strong>Statut :</strong> {{ bien.get_statut_display }}</p>
+                            <p><strong>Surface :</strong> {{ bien.surface }} m²</p>
+                            <p><strong>Prix :</strong> {{ bien.prix }} FCFA</p>
+                            <p><strong>Localisation :</strong> {{ bien.localisation }}</p>
+                            <p><strong>Ajouté le :</strong> {{ bien.date_ajout|date:"d/m/Y H:i" }}</p>
+                            <hr>
+                            <h6>Informations vendeur</h6>
+                            <p><strong>Nom :</strong> {{ bien.nom_vendeur }}</p>
+                            <p>
+                                <strong>Contact :</strong>
+                                {% if bien.contact_vendeur %}
+                                    {% if bien.contact_vendeur|slice:":4" == '+228' %}
+                                        <a href="https://wa.me/{{ bien.contact_vendeur|cut:'+' }}" target="_blank" class="btn btn-success btn-sm me-2">
+                                            <i class="bi bi-whatsapp"></i> WhatsApp
+                                        </a>
+                                        <a href="tel:{{ bien.contact_vendeur }}" class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-telephone"></i> Appeler
+                                        </a>
+                                    {% else %}
+                                        <a href="tel:{{ bien.contact_vendeur }}" class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-telephone"></i> {{ bien.contact_vendeur }}
+                                        </a>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">Non renseigné</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-12">
+                            <h6>Description complète</h6>
+                            <div class="p-3 bg-light rounded border" style="max-height: 300px; overflow-y: auto;">
+                                {{ bien.description|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if bien.medias.all %}
+                    <hr>
+                    <h6>Autres images</h6>
+                    <div class="row g-3">
+                        {% for media in bien.medias.all %}
+                        <div class="col-md-4 col-sm-6">
+                            <a href="{{ media.image.url }}" target="_blank" rel="noopener noreferrer">
+                                <img src="{{ media.image.url }}" class="img-fluid rounded-3" alt="Image supplémentaire">
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if bien.localisation or bien.zone_geom %}
+                    <hr>
+                    <h6>Localisation</h6>
+                    <div class="modal-map-container" id="map-modal-{{ bien.id }}"></div>
+                    <input type="hidden" id="coords-{{ bien.id }}" 
+                           value="{% if bien.localisation %}{{ bien.localisation.y|stringformat:'f' }},{{ bien.localisation.x|stringformat:'f' }}{% endif %}">
+                    <input type="hidden" id="zone-geom-{{ bien.id }}" value="{{ bien.geojson|safe|force_escape }}">
+                          
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                    <a href="{% url 'contacter_annonceur' bien.id %}" class="btn btn-primary">
+                        <i class="bi bi-envelope"></i> Contacter
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if biens.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page=1" aria-label="First"><span aria-hidden="true">&laquo;&laquo;</span></a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ biens.previous_page_number }}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+        </li>
+        {% endif %}
+        {% for num in biens.paginator.page_range %}
+        <li class="page-item {% if biens.number == num %}active{% endif %}">
+            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+        </li>
+        {% endfor %}
+        {% if biens.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ biens.next_page_number }}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ biens.paginator.num_pages }}" aria-label="Last"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des filtres
+    document.getElementById('apply-filters').addEventListener('click', function() {
+    const type = document.getElementById('filter-type').value.toLowerCase();
+    const statut = document.getElementById('filter-statut').value.toLowerCase();
+    const maxPrice = parseFloat(document.getElementById('filter-price').value);
+    const minSurface = parseFloat(document.getElementById('filter-surface').value);
+
+    let countVisible = 0;
+
+    document.querySelectorAll('#biens-container > div').forEach(bien => {
+        const bienType = bien.dataset.type
+        const bienStatut = bien.dataset.statut
+        const bienPrice = parseFloat(bien.dataset.price);
+        const bienSurface = parseFloat(bien.dataset.surface);
+
+        let shouldShow = true;
+
+        if (type && bienType !== type) shouldShow = false;
+        if (statut && bienStatut !== statut) shouldShow = false;
+        if (!isNaN(maxPrice) && bienPrice > maxPrice) shouldShow = false;
+        if (!isNaN(minSurface) && bienSurface < minSurface) shouldShow = false;
+
+        bien.style.display = shouldShow ? 'block' : 'none';
+        if (shouldShow) countVisible++;
+    });
+
+    // Gestion du message "Aucun bien"
+    let message = document.getElementById('no-results-message');
+    if (countVisible === 0) {
+        if (!message) {
+            message = document.createElement('div');
+            message.id = 'no-results-message';
+            message.className = 'col-12 text-center py-5';
+            message.innerHTML = `
+                <i class="bi bi-exclamation-circle fs-1 text-muted"></i>
+                <h4 class="mt-3">Aucun bien ne correspond à vos critères</h4>
+                <button class="btn btn-outline-primary mt-3" id="reset-filters-msg">
+                    Réinitialiser les filtres
+                </button>
+            `;
+            document.getElementById('biens-container').appendChild(message);
+            document.getElementById('reset-filters-msg').addEventListener('click', function () {
+                document.getElementById('reset-filters').click();
+            });
+        }
+    } else {
+        if (message) {
+            message.remove();
+        }
+    }
+});
+
+
+    document.getElementById('reset-filters').addEventListener('click', function() {
+        document.getElementById('filter-type').value = '';
+        document.getElementById('filter-price').value = '';
+        document.getElementById('filter-surface').value = '';
+        document.querySelectorAll('#biens-container > div').forEach(bien => {
+            bien.style.display = 'block';
+        });
+    });
+
+    // Dictionnaire pour stocker les instances de carte
+    const maps = {};
+
+    // Fonction pour initialiser les cartes dans les modaux
+    function initMap(bienId) {
+        const mapElement = document.getElementById(`map-modal-${bienId}`);
+        if (!mapElement || maps[bienId]) return;
+
+        const coordsInput = document.getElementById(`coords-${bienId}`);
+        const zoneGeomInput = document.getElementById(`zone-geom-${bienId}`);
+
+        const map = L.map(mapElement.id);
+        maps[bienId] = map;
+            // 🗺️ OpenStreetMap Layer
+    const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);    
+    // 🗺️ Google Maps Layer (via Leaflet-providers)
+    const googleLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+    maxZoom: 20,
+    subdomains: ['mt0','mt1','mt2','mt3'],
+    attribution: '&copy; <a href="https://maps.google.com/">Google Maps</a>'});
+    const googleSatellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+   maxZoom: 20,
+   subdomains: ['mt0','mt1','mt2','mt3']
+});
+    // 🗂️ Basemaps
+    const baseLayers = {
+    "OpenStreetMap": osmLayer,
+    "Google Maps": googleLayer,
+    'googleSatellite':googleSatellite
+};
+
+// 🧭 Ajouter le contrôle
+L.control.layers(baseLayers).addTo(map);
+
+        
+
+        let hasData = false;
+
+        // Gestion des coordonnées ponctuelles
+        if (coordsInput && coordsInput.value) {
+            const [lat, lng] = coordsInput.value.split(',').map(Number);
+            if (!isNaN(lat) && !isNaN(lng)) {
+                L.marker([lat, lng]).addTo(map)
+                    .bindPopup("Localisation du bien");
+                map.setView([lat, lng], 15);
+                hasData = true;
+            }
+        }
+        console.log(zoneGeomInput)
+        // Gestion des polygones
+        if (zoneGeomInput && zoneGeomInput.value) {
+            try {
+                let geojsonStr = zoneGeomInput.value.trim();
+                
+                
+                // Correction des problèmes de format JSON
+                geojsonStr = geojsonStr.replace(/'/g, '"');
+                geojsonStr = geojsonStr.replace(/\\/g, '');
+                
+                // Vérification que la chaîne commence par { et finit par }
+                if (!geojsonStr.startsWith('{') || !geojsonStr.endsWith('}')) {
+                    console.error("Format GeoJSON invalide - doit être un objet JSON");
+                    return;
+                }
+
+                const geojson = JSON.parse(geojsonStr);
+                
+                // Validation supplémentaire du GeoJSON
+                if (!geojson.type || !geojson.coordinates) {
+                    console.error("Structure GeoJSON invalide", geojson);
+                    return;
+                }
+                console.log("tte")
+                const polygon = L.geoJSON(geojson, {
+                    style: {
+                        fillColor: "#3388ff",
+                        color: "#3388ff",
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.2
+                    }
+                }).addTo(map);
+                
+                if (!hasData) {
+                    map.fitBounds(polygon.getBounds());
+                }
+            } catch (e) {
+                console.error("Erreur lors du traitement du GeoJSON:", e);
+                console.log("Données brutes zone_geom:", zoneGeomInput.value);
+            }
+        }
+
+        if (!hasData && (!coordsInput || !coordsInput.value) && (!zoneGeomInput || !zoneGeomInput.value)) {
+            map.setView([0, 0], 2);
+        }
+    }
+
+    // Initialiser les cartes quand les modaux sont ouverts
+    document.querySelectorAll('.btn-voir-detail').forEach(button => {
+        button.addEventListener('click', function() {
+            const bienId = this.getAttribute('data-bien-id');
+            // Petit délai pour s'assurer que le modal est visible
+            setTimeout(() => initMap(bienId), 50);
+        });
+    });
+
+    // Script pour incrémenter les vues
+    document.querySelectorAll('.btn-voir-detail').forEach(bouton => {
+        bouton.addEventListener('click', function() {
+            const bienId = this.getAttribute('data-bien-id');
+            fetch(`/biens/${bienId}/increment_vue/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'ok') {
+                    console.log('Vues mises à jour pour le bien ID:', bienId);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+            });
+        });
+    });
+});
+</script>
+{% endblock %} 

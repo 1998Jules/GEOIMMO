@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Tableau de bord Vendeur{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sidebar {
+        background-color: #f8f9fa;
+        border-right: 1px solid #ddd;
+        height: 100%;
+        min-height: 100vh;
+    }
+    .sidebar .nav-link {
+        color: #333;
+    }
+    .sidebar .nav-link.active,
+    .sidebar .nav-link:hover {
+        font-weight: bold;
+        background-color: #e9ecef;
+        border-left: 4px solid #0d6efd;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- MENU LATÉRAL -->
+        <div class="col-md-3 sidebar p-3">
+            <h5 class="mb-4">Vendeur</h5>
+            <a href="{% url 'ajouter_bien' %}" class="btn btn-primary w-100 mb-3">
+                <i class="bi bi-plus-circle"></i> Ajouter une annonce
+            </a>
+            <ul class="nav flex-column">
+                <li class="nav-item"><a href="#" class="nav-link active"><i class="bi bi-house-door"></i> Tableau de bord</a></li>
+                <li class="nav-item"><a href="{% url 'mes_annonces' %}" class="nav-link"><i class="bi bi-folder2-open"></i> Mes annonces</a></li>
+                <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-heart"></i> Annonces favoris</a></li>
+                <li class="nav-item"><a href="{% url 'mes_demandes' %}" class="nav-link"><i class="bi bi-chat-left-dots"></i> Mes demandes</a></li>
+                <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-image"></i> Galerie photo</a></li>
+                <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-bell"></i> Alertes secteurs</a></li>
+                <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-calendar-check"></i> Mes réservations</a></li>
+                <hr>
+                <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-person"></i> Mon profil</a></li>
+                <li class="nav-item">
+                    <form method="post" action="{% url 'deconnexion' %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link nav-link text-danger" style="padding:0; border:none; background:none;">
+                            <i class="bi bi-box-arrow-right"></i> Déconnexion
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+
+        <!-- ZONE CONTENU PRINCIPAL -->
+        <div class="col-md-9 p-4">
+            <h2 class="mb-4">Bienvenue, <span class="text-primary">{{ user.username }}</span> 👋</h2>
+
+            <!-- Résumé des statistiques -->
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="card border-primary text-center">
+                        <div class="card-body">
+                            <i class="bi bi-house-door fs-2 text-primary"></i>
+                            <h6 class="mt-2">Annonces postées</h6>
+                            <p class="fw-bold">{{ nb_annonces }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-info text-center">
+                        <div class="card-body">
+                            <i class="bi bi-eye fs-2 text-info"></i>
+                            <h6 class="mt-2">Ont vu</h6>
+                            <p class="fw-bold">{{ nb_vues }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-success text-center">
+                        <div class="card-body">
+                            <i class="bi bi-chat-dots fs-2 text-success"></i>
+                            <h6 class="mt-2">Messages</h6>
+                            <p class="fw-bold">{{ nb_messages }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-warning text-center">
+                        <div class="card-body">
+                            <i class="bi bi-heart fs-2 text-warning"></i>
+                            <h6 class="mt-2">Ont aimé</h6>
+                            <p class="fw-bold">{{ nb_favoris }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            
+
+        </div>
+    </div>
+</div>
+{% endblock %}

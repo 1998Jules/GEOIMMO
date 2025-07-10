@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="alert alert-success">
+    <h4>Message envoyé !</h4>
+    <p>Votre message a bien été envoyé à l'annonceur du bien "{{ bien.titre }}".</p>
+    <a href="{% url 'liste_biens' %}" class="btn btn-primary">Retour à la liste des biens</a>
+</div>
+{% endblock %}

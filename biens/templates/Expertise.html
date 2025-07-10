@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Notre Expertise | Habitat-TOUT-EN-UN{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/expertise.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <!-- Titre principal -->
+  <h2 class="text-center my-4 fw-bold">Notre Expertise </h2>
+
+  <!-- Texte d’introduction -->
+  <p class="text-justify fs-5">
+    Chez <strong>Habitat-TOUT-EN-UN</strong>, nous mettons à votre disposition une équipe d’experts spécialisés dans la 
+    <strong>gestion foncière</strong>, l’<strong>immatriculation des terrains</strong>, la <strong>régularisation administrative</strong>,
+    et la <strong>conformité juridique</strong> des biens immobiliers. 
+    <br><br>
+    Nous vous accompagnons dans toutes les étapes de vos démarches immobilières afin de sécuriser vos transactions et d’éviter toute tentative d’escroquerie. 
+    <br><br>
+    Nous vous conseillons dans toutes vos opérations foncières. Que vous soyez au Togo ou à l’étranger, confiez-nous votre dossier, restez serein : nous nous occupons de tout, de manière professionnelle et sécurisée.
+  </p>
+
+  <!-- Domaines d'expertise foncière -->
+<div class="row mt-5">
+  <div class="col-md-4 mb-4">
+    <div class="card h-100 shadow-sm border-0">
+      <img src="{% static 'images/verification.png' %}" class="card-img-top" alt="Vérification foncière">
+      <div class="card-body">
+        <h5 class="card-title fw-bold">Vérification foncière</h5>
+        <p class="card-text">Analyse des titres fonciers, situation juridique et administrative des parcelles avant toute transaction.</p>
+      </div>
+    </div>
+  </div>
+
+    <div class="col-md-4 mb-4">
+  <div class="card h-100 shadow-sm border-0">
+    <img src="{% static 'images/immatriculation.png' %}" class="card-img-top" alt="Appui à l’immatriculation">
+    <div class="card-body">
+      <h5 class="card-title fw-bold">Appui à l’immatriculation</h5>
+      <p class="card-text">Accompagnement complet pour l’obtention de titres fonciers sécurisés auprès des services compétents.</p>
+    </div>
+  </div>
+</div>
+
+    <div class="col-md-4 mb-4">
+  <div class="card h-100 shadow-sm border-0">
+    <img src="{% static 'images/dossier.png' %}" class="card-img-top" alt="Montage de dossiers">
+    <div class="card-body">
+      <h5 class="card-title fw-bold">Montage de dossiers</h5>
+      <p class="card-text">Réalisation et dépôt des dossiers techniques auprès du cadastre et des affaires domaniales.</p>
+    </div>
+  </div>
+</div>
+
+
+  <!-- Nouveaux services immobiliers -->
+  <h3 class="fw-bold text-center mt-5 mb-4">Autres Services Immobiliers</h3>
+  <div class="row">
+    <!-- Location -->
+    
+  <!-- Location -->
+  <div class="col-md-4 mb-4">
+    <div class="card h-100 bg-light shadow-sm border-0">
+      <img src="{% static 'images/location.png' %}" class="card-img-top" alt="Location de biens">
+      <div class="card-body">
+        <h5 class="card-title fw-bold">Location</h5>
+        <p class="card-text">Vous cherchez un logement à louer ? Nous vous accompagnons pour trouver le bien idéal en toute sécurité.</p>
+      </div>
+    </div>
+  </div>
+
+    <div class="col-md-4 mb-4">
+  <div class="card h-100 bg-light shadow-sm border-0">
+    <img src="{% static 'images/vente.png' %}" class="card-img-top" alt="Vente de biens">
+    <div class="card-body">
+      <h5 class="card-title fw-bold">Vente de biens</h5>
+      <p class="card-text">Vous souhaitez vendre un terrain ou une maison ? Nous vous aidons à valoriser votre bien et à conclure une vente fiable.</p>
+    </div>
+  </div>
+</div>
+
+    <div class="col-md-4 mb-4">
+  <div class="card h-100 bg-light shadow-sm border-0">
+    <img src="{% static 'images/conseil.png' %}" class="card-img-top" alt="Conseil personnalisé">
+    <div class="card-body">
+      <h5 class="card-title fw-bold">Conseil personnalisé</h5>
+      <p class="card-text">Vous hésitez entre achat, location ou régularisation ? Profitez de nos conseils d’experts pour prendre les meilleures décisions.</p>
+    </div>
+  </div>
+</div>
+  </div>
+
+  <!-- Bloc témoignage ou impact -->
+  <div class="mt-5">
+    <h4 class="fw-bold">📈 Notre Impact</h4>
+    <p>Plus de <strong>100 dossiers</strong> fonciers traités avec succès dans le Grand Lomé, Kpalimé, Tsévié et Kara. Des familles, promoteurs et investisseurs nous font déjà confiance.</p>
+  </div>
+
+  <!-- Appel à l’action -->
+  <div class="text-center my-5">
+    <h5 class="fw-bold mb-4">📞 Prenez contact avec l’un de nos experts :</h5>
+
+    <div class="mb-3">
+      <a href="tel:+22870135131" class="btn btn-primary btn-lg px-4 me-2">
+        📞 +228 70 13 51 31
+      </a>
+      <a href="https://wa.me/22870135131" class="btn btn-success btn-lg px-4" target="_blank">
+        💬 WhatsApp
+      </a>
+    </div>
+
+    <div>
+      <a href="tel:+22893647042" class="btn btn-primary btn-lg px-4 me-2">
+        📞 +228 93 64 70 42
+      </a>
+      <a href="https://wa.me/22893647042" class="btn btn-success btn-lg px-4" target="_blank">
+        💬 WhatsApp
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

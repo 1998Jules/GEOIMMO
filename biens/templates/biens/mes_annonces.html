@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Mes annonces{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4">Mes annonces</h2>
+    {% if biens %}
+    <div class="row g-4">
+        {% for bien in biens %}
+        <div class="col-md-4">
+            <div class="card h-100">
+                <img src="{{ bien.image_principale.url }}" class="card-img-top" alt="{{ bien.titre }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ bien.titre }}</h5>
+
+                    <form method="post" action="{% url 'changer_statut_bien' bien.id %}">
+                        {% csrf_token %}
+                        <div class="mb-2">
+                            <label class="form-label"><strong>Statut :</strong></label>
+                            <select name="nouveau_statut" class="form-select form-select-sm">
+                                {% for value, label in bien.STATUT_CHOIX %}
+                                    <option value="{{ value }}" {% if bien.statut == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary">Modifier</button>
+                    </form>
+
+                    <p class="mt-2"><strong>Prix :</strong> {{ bien.prix }} FCFA</p>
+                    <a href="{% url 'liste_biens' %}" class="btn btn-sm btn-outline-secondary">Voir</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+        <p class="text-muted">Aucune annonce trouvée.</p>
+    {% endif %}
+</div>
+{% endblock %}

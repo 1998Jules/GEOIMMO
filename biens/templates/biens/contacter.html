@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+<ul class="errorlist"><li>Ce champ est obligatoire.</li></ul>
+{% block content %}
+<style>
+    ul.errorlist {
+        color: red;
+        list-style: none;
+        padding-left: 0;
+        margin: 0 0 5px 0;
+        font-size: 0.9rem;
+    }
+</style>
+<h2>Contacter l'annonceur du bien "{{ bien.titre }}"</h2>
+<form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Envoyer</button>
+    <a href="{% url 'liste_biens' %}" class="btn btn-secondary">Annuler</a>
+</form>
+{% endblock %}

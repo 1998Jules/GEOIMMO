@@ -1,0 +1,379 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Ajouter un bien | Habitat-TOUT-EN-UN{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="{% static 'css/style_ajout.css' %}" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+<style>
+    #map-container {
+        position: relative;
+        height: 400px;
+        margin-bottom: 1rem;
+    }
+    #map {
+        height: 100%;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+    }
+    .map-toolbar {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0"><i class="bi bi-house-add"></i> Ajouter un nouveau bien</h1>
+                <a href="{% url 'liste_biens' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour à la liste
+                </a>
+            </div>
+
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                <strong>Erreurs dans le formulaire :</strong>
+                <ul>
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li><strong>{{ field.label }} :</strong> {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <div class="form-section mb-4">
+                    <h2 class="h5 mb-4"><i class="bi bi-info-circle"></i> Informations générales</h2>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_titre" class="form-label">Titre du bien *</label>
+                            {{ form.titre }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="id_type_bien" class="form-label">Type de bien *</label>
+                            {{ form.type_bien }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_description" class="form-label">Description détaillée *</label>
+                        {{ form.description }}
+                    </div>
+                </div>
+
+                <div class="form-section mb-4">
+                    <h2 class="h5 mb-4"><i class="bi bi-list-check"></i> Caractéristiques</h2>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="id_surface" class="form-label">Surface (m²) *</label>
+                            {{ form.surface }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="id_prix" class="form-label">Prix (FCFA) *</label>
+                            {{ form.prix }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="id_statut" class="form-label">Statut *</label>
+                            {{ form.statut }}
+                        </div>
+                        <div class="form-check mb-3">
+                            {{ form.a_la_une }}
+                            <label class="form-check-label" for="id_a_la_une">Mettre ce bien à la une</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section mb-4">
+                    <h2 class="h5 mb-4"><i class="bi bi-person-lines-fill"></i> Informations du vendeur</h2>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_nom_vendeur" class="form-label">Nom du vendeur *</label>
+                            {{ form.nom_vendeur }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="id_contact_vendeur" class="form-label">Contact (WhatsApp ou téléphone) *</label>
+                            {{ form.contact_vendeur }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section mb-4">
+                    <h2 class="h5 mb-4"><i class="bi bi-geo-alt"></i> Localisation</h2>
+                    <div id="map-container">
+                        <div id="map"></div>
+                        <div class="map-toolbar">
+                            <button type="button" id="locate-me" class="btn btn-sm btn-outline-primary" title="Me localiser">
+                                <i class="bi bi-geo"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-3 mt-3">
+                   <label for="coords_input" class="form-label">Coordonnées manuelles (lat, lng par ligne)</label>
+                   <textarea id="coords_input" class="form-control" rows="4" placeholder="Ex :&#10;6.1319,1.2226&#10;6.1321,1.2231&#10;..."></textarea>
+                   <button type="button" class="btn btn-outline-primary mt-2" id="draw-from-coords">
+                   <i class="bi bi-vector-pen"></i> Dessiner à partir des coordonnées
+                   </button>
+                    </div>
+
+
+                   {{ form.localisation }}
+                   {{ form.zone_geom }}
+
+                    <input type="text" id="id_localisation_debug" readonly class="form-control mb-2 text-muted" placeholder="Point WKT (debug)">
+                    <input type="text" id="id_zone_geom_debug" readonly class="form-control mt-2 text-muted" placeholder="Zone WKT (debug)">
+                    
+                    
+                    <small class="form-text text-muted">Cliquez ou dessinez pour géolocaliser le bien.</small>
+                </div>
+
+                <div class="form-section mb-4">
+                    <h2 class="h5 mb-4"><i class="bi bi-images"></i> Médias</h2>
+                    <div class="mb-3">
+                        <label for="id_image_principale" class="form-label">Image principale *</label>
+                        <input type="file" name="image_principale" id="id_image_principale" class="form-control" accept="image/*" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_plan_terrain" class="form-label">Plan du terrain (facultatif)</label>
+                        <input type="file" name="plan_terrain" id="id_plan_terrain" class="form-control" accept="image/*,.pdf,.dwg" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Images supplémentaires</label>
+                        <div class="file-upload-wrapper">
+                            <label for="id_medias" class="file-upload-label">
+                                <i class="bi bi-cloud-arrow-up fs-1"></i><br />
+                                <span>Glissez-déposez vos images ou cliquez pour sélectionner</span>
+                                <input type="file" name="medias" id="id_medias" multiple class="form-control" accept="image/*" />
+                            </label>
+                        </div>
+                        <div id="file-list" class="small text-muted"></div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="reset" class="btn btn-outline-danger me-md-2">
+                        <i class="bi bi-x-circle"></i> Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Enregistrer le bien
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
+<script>
+const map = L.map('map').setView([6.1319, 1.2226], 13);
+
+const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);    
+    // 🗺️ Google Maps Layer (via Leaflet-providers)
+    const googleLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+    maxZoom: 20,
+    subdomains: ['mt0','mt1','mt2','mt3'],
+    attribution: '&copy; <a href="https://maps.google.com/">Google Maps</a>'});
+    const googleSatellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+   maxZoom: 20,
+   subdomains: ['mt0','mt1','mt2','mt3']
+});
+    // 🗂️ Basemaps
+    const baseLayers = {
+    "OpenStreetMap": osmLayer,
+    "Google Maps": googleLayer,
+    'googleSatellite':googleSatellite
+};
+
+// 🧭 Ajouter le contrôle
+L.control.layers(baseLayers).addTo(map);
+
+let marker = null;
+let drawnPolygon = null;
+const drawnItems = new L.FeatureGroup().addTo(map);
+
+// Contrôle de dessin
+const drawControl = new L.Control.Draw({
+    draw: {
+        marker: false,
+        polyline: false,
+        rectangle: false,
+        circle: false,
+        circlemarker: false,
+        polygon: {
+            allowIntersection: false,
+            showArea: true
+        }
+    },
+    edit: {
+        featureGroup: drawnItems
+    }
+});
+
+// Activation/désactivation du contrôle selon type_bien
+function toggleFieldsByType() {
+    const typeValue = document.getElementById('id_type_bien').value;
+
+    if (typeValue === 'terrain') {
+        map.addControl(drawControl);
+    } else {
+        map.removeControl(drawControl);
+        drawnItems.clearLayers();
+        document.getElementById('id_zone_geom').value = '';
+        document.getElementById('id_zone_geom_debug').value = '';
+    }
+}
+
+// Gestion du clic sur la carte (POINT)
+map.on('click', function(e) {
+    const lat = e.latlng.lat.toFixed(6);
+    const lng = e.latlng.lng.toFixed(6);
+
+    if (marker) {
+        marker.setLatLng(e.latlng);
+    } else {
+        marker = L.marker(e.latlng, { draggable: true }).addTo(map);
+        marker.on('dragend', function(event) {
+            const pos = event.target.getLatLng();
+            updateLocationField(pos.lat.toFixed(6), pos.lng.toFixed(6));
+        });
+    }
+    updateLocationField(lat, lng);
+});
+
+function updateLocationField(lat, lng) {
+    const wkt = `POINT(${lng} ${lat})`;
+    document.getElementById('id_localisation').value = wkt;
+    document.getElementById('id_localisation_debug').value = wkt;
+}
+
+// Me localiser
+document.getElementById('locate-me').addEventListener('click', function () {
+    if (!navigator.geolocation) return alert("Géolocalisation non supportée.");
+    navigator.geolocation.getCurrentPosition(function (position) {
+        const lat = position.coords.latitude.toFixed(6);
+        const lng = position.coords.longitude.toFixed(6);
+        map.setView([lat, lng], 16);
+        if (marker) {
+            marker.setLatLng([lat, lng]);
+        } else {
+            marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+            marker.on('dragend', function(event) {
+                const pos = event.target.getLatLng();
+                updateLocationField(pos.lat.toFixed(6), pos.lng.toFixed(6));
+            });
+        }
+        updateLocationField(lat, lng);
+    });
+});
+
+// Création du polygone
+map.on(L.Draw.Event.CREATED, function (event) {
+    if (drawnPolygon) drawnItems.removeLayer(drawnPolygon);
+
+    drawnPolygon = event.layer;
+    drawnItems.addLayer(drawnPolygon);
+
+    const latlngs = drawnPolygon.getLatLngs()[0];
+    const coords = latlngs.map(p => `${p.lng} ${p.lat}`);
+    coords.push(`${latlngs[0].lng} ${latlngs[0].lat}`);  // fermeture
+
+    const wkt = `POLYGON((${coords.join(', ')}))`;
+    document.getElementById('id_zone_geom').value = wkt;
+    document.getElementById('id_zone_geom_debug').value = wkt;
+});
+
+// Affichage initial selon valeur pré-remplie
+window.addEventListener('load', function () {
+    toggleFieldsByType();
+
+    // Charger un point existant
+    const val = document.getElementById('id_localisation').value;
+    const match = val.match(/POINT\(([-\d.]+) ([-\d.]+)\)/);
+    if (match) {
+        const lng = parseFloat(match[1]);
+        const lat = parseFloat(match[2]);
+        const latlng = L.latLng(lat, lng);
+        marker = L.marker(latlng, { draggable: true }).addTo(map);
+        map.setView(latlng, 16);
+        marker.on('dragend', function (event) {
+            const pos = event.target.getLatLng();
+            updateLocationField(pos.lat.toFixed(6), pos.lng.toFixed(6));
+        });
+        updateLocationField(lat, lng);
+    }
+});
+
+// Mise à jour si l'utilisateur change le type de bien
+document.getElementById('id_type_bien').addEventListener('change', toggleFieldsByType);
+document.getElementById('draw-from-coords').addEventListener('click', function () {
+    const text = document.getElementById('coords_input').value.trim();
+    if (!text) return alert("Veuillez saisir les coordonnées.");
+
+    const lines = text.split('\n');
+    const latlngs = [];
+
+    for (let line of lines) {
+        const parts = line.split(',');
+        if (parts.length !== 2) {
+            alert("Format invalide. Chaque ligne doit être : lat,lng");
+            return;
+        }
+
+        const lat = parseFloat(parts[0].trim());
+        const lng = parseFloat(parts[1].trim());
+
+        if (isNaN(lat) || isNaN(lng)) {
+            alert("Coordonnée invalide : " + line);
+            return;
+        }
+
+        latlngs.push([lat, lng]);
+    }
+
+    if (latlngs.length < 3) {
+        alert("Un polygone a besoin d'au moins 3 sommets.");
+        return;
+    }
+
+    // Fermer le polygone si besoin
+    if (latlngs[0][0] !== latlngs[latlngs.length - 1][0] ||
+        latlngs[0][1] !== latlngs[latlngs.length - 1][1]) {
+        latlngs.push(latlngs[0]);
+    }
+
+    // Supprimer ancien polygone
+    if (drawnPolygon) drawnItems.removeLayer(drawnPolygon);
+
+    // Créer et afficher
+    drawnPolygon = L.polygon(latlngs).addTo(drawnItems);
+    map.fitBounds(drawnPolygon.getBounds());
+
+    // Mettre à jour le champ zone_geom
+    const coords = latlngs.map(p => `${p[1]} ${p[0]}`);
+    const wkt = `POLYGON((${coords.join(', ')}))`;
+    document.getElementById('id_zone_geom').value = wkt;
+    document.getElementById('id_zone_geom_debug').value = wkt;
+});
+</script>
+
+
+{% endblock %}

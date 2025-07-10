@@ -1,0 +1,26 @@
+.blog-header {
+    background: linear-gradient(to right, #82a6ca, #a3c5e9); /* plus profond */
+    background-size: cover;
+    background-position: center;
+    color: #ffffff;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+    padding: 80px 0;
+    border-bottom: 5px solid #ffffff22;
+}
+
+.blog-header h1 {
+    font-size: 3.2rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
+
+.blog-header h1 .highlight {
+    color: #ff7300; /* jaune vif pour faire ressortir */
+}
+
+.blog-header .subtitle {
+    font-size: 1.3rem;
+    font-weight: 700;
+    opacity: 0.95;
+}
