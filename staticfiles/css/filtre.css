@@ -1,0 +1,40 @@
+/* Style général du bloc filtre */
+.filters-section {
+  background-color: #fff;
+  padding: 1rem 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 6px rgba(185, 77, 77, 0.05);
+  position: sticky;
+  top: 70px;
+  z-index: 1020;
+  margin-bottom: 2rem;
+}
+
+/* Labels plus lisibles */
+.filters-section .form-label {
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* Espacement des champs */
+.filters-section .form-select,
+.filters-section .form-control {
+  font-size: 0.95rem;
+}
+
+/* Boutons action */
+.filters-section .btn {
+  font-size: 0.95rem;
+}
+
+/* Responsive - sur petits écrans */
+@media (max-width: 768px) {
+  .filters-section .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .filters-section .row > div {
+    margin-bottom: 1rem;
+  }
+}

@@ -30,6 +30,7 @@ def dashboard_vendeur(request):
 
 
 # ➤ Ajout de bien
+
 @login_required
 def ajouter_bien(request):
     if request.method == 'POST':

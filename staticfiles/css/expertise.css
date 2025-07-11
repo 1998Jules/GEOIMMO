@@ -1,0 +1,69 @@
+/* Pour des titres bien visibles */
+h2, h3, h4, h5 {
+  color: #1e3a8a; /* Bleu profond */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Paragraphe général */
+p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #333;
+}
+
+/* Cartes de service */
+.card {
+  border-radius: 15px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Titres dans les cartes */
+.card-title {
+  font-size: 1.2rem;
+  color: #0f172a;
+}
+
+/* Section appel à l'action */
+.btn {
+  font-weight: 600;
+  border-radius: 30px;
+}
+
+/* Couleurs personnalisées pour les boutons */
+.btn-primary {
+  background-color: #2563eb;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #1d4ed8;
+}
+
+.btn-success {
+  background-color: #22c55e;
+  border: none;
+}
+
+.btn-success:hover {
+  background-color: #16a34a;
+}
+
+/* Pour les titres de sections */
+.text-section-title {
+  border-left: 4px solid #2563eb;
+  padding-left: 10px;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+/* Responsive pour les cartes */
+@media (max-width: 767px) {
+  .card {
+    margin-bottom: 20px;
+  }
+}

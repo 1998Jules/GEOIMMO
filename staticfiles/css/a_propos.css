@@ -1,0 +1,78 @@
+/* Image de fond plein écran */
+.full-width-hero {
+    width: 100vw;
+    height: 50vh;
+    background-image: url("/static/images/propos.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    overflow: hidden;
+    color: #fff;
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Superposition sombre */
+.full-width-hero .overlay {
+    position: absolute;
+    top: 0; left: 0;
+    right: 0; bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1;
+}
+
+/* Texte au-dessus de l'overlay */
+.hero-text {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+}
+
+/* Style du texte */
+.hero-subtitle {
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1.6;
+    color: #f8f9fa;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.2rem;
+    }
+}
+/* Séparateur décoratif */
+.styled-hr {
+    border: none;
+    height: 3px;
+    width: 120px;
+    background-color: #007bff;
+    margin: 0 auto;
+    border-radius: 3px;
+    position: relative;
+}
+
+.styled-hr::after {
+    content: '';
+    position: absolute;
+    height: 3px;
+    width: 40px;
+    background-color: #0d6efd;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 3px;
+}
