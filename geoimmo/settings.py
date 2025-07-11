@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-n=y!_t_nt_gaw!r_jv==qbc*gg($i*t5xjq1wuzrrjv92lqa5a
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'de24-196-170-50-231.ngrok-free.app']
+ALLOWED_HOSTS = ['*', 'localhost', 'de24-196-170-50-231.ngrok-free.app']
 CSRF_TRUSTED_ORIGINS = [
     "https://*.ngrok-free.app",
 ]
@@ -79,7 +79,7 @@ WSGI_APPLICATION = "geoimmo.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
+'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
@@ -90,6 +90,19 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+'''
+
+import dj_database_url
+import os
+
+
+DATABASES = {
+    'default': dj_database_url.config(
+        default=os.environ.get("DATABASE_URL"),
+        engine='django.contrib.gis.db.backends.postgis'  # Important !
+    )
+}
+
 
 
 # Password validation
