@@ -34,7 +34,16 @@
         .card:hover {
             transform: translateY(-5px);
         }
+        #biens-container {
+            min-height: 300px;
+        }
+        .no-results {
+            display: none;
+        }
+        
     </style>
+    
+
 {% endblock %}
 
 {% block content %}
@@ -42,61 +51,65 @@
 
 <!-- Section Filtres -->
 <div class="filters-section">
-<div class="row mb-4 bg-white p-3 rounded shadow-sm sticky-top" style="top: 70px; z-index: 1020;">
-    <div class="col-md-3 mb-2">
-        <label for="filter-type" class="form-label">Type de bien</label>
-        <select class="form-select" id="filter-type">
-            <option value="">Tous les types</option>
-            <option value="maison">Maison</option>
-            <option value="appartement">Appartement</option>
-            <option value="terrain">Terrain</option>
-            <option value="bureau">Bureau</option>
-            <option value="chambre">Chambre</option>
-        </select>
+    <div class="row mb-4 bg-white p-3 rounded shadow-sm sticky-top" style="top: 70px; z-index: 1020;">
+        <div class="col-md-3 mb-2">
+            <label for="filter-type" class="form-label">Type de bien</label>
+            <select class="form-select" id="filter-type">
+                <option value="">Tous les types</option>
+                <option value="maison">Maison</option>
+                <option value="appartement">Appartement</option>
+                <option value="terrain">Terrain</option>
+                <option value="bureau">Bureau</option>
+                <option value="chambre">Chambre</option>
+            </select>
+        </div>
+        <div class="col-md-3 mb-2">
+            <label for="filter-statut" class="form-label">Statut</label>
+            <select class="form-select" id="filter-statut">
+                <option value="">Tous les statuts</option>
+                <option value="vente">En vente</option>
+                <option value="location">En location</option>
+                <option value="vendu">Vendu</option>
+                <option value="loué">Loué</option>
+            </select>
+        </div>
+        <div class="col-md-3 mb-2">
+            <label for="filter-price" class="form-label">Prix max (FCFA)</label>
+            <input type="number" class="form-control" id="filter-price" placeholder="Prix maximum">
+        </div>
+        <div class="col-md-3 mb-2">
+            <label for="filter-surface" class="form-label">Surface min (m²)</label>
+            <input type="number" class="form-control" id="filter-surface" placeholder="Surface minimum">
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <button class="btn btn-primary me-2 w-50" id="apply-filters">
+                <i class="bi bi-funnel"></i> Filtrer
+            </button>
+            <button class="btn btn-outline-secondary w-50" id="reset-filters">
+                <i class="bi bi-arrow-counterclockwise"></i>
+            </button>
+        </div>
     </div>
-    <div class="col-md-3 mb-2">
-    <label for="filter-statut" class="form-label">Statut</label>
-    <select class="form-select" id="filter-statut">
-        <option value="">Tous les statuts</option>
-        <option value="vente">En vente</option>
-        <option value="location">En location</option>
-        <option value="vendu">Vendu</option>
-        <option value="loué">Loué</option>
-    </select>
 </div>
 
-    
-    <div class="col-md-3 mb-2">
-        <label for="filter-price" class="form-label">Prix max (FCFA)</label>
-        <input type="number" class="form-control" id="filter-price" placeholder="Prix maximum">
-    </div>
-    <div class="col-md-3 mb-2">
-        <label for="filter-surface" class="form-label">Surface min (m²)</label>
-        <input type="number" class="form-control" id="filter-surface" placeholder="Surface minimum">
-    </div>
-    <div class="col-md-3 d-flex align-items-end">
-        <button class="btn btn-primary me-2 w-50" id="apply-filters">
-            <i class="bi bi-funnel"></i> Filtrer
-        </button>
-        <button class="btn btn-outline-secondary w-50" id="reset-filters">
-            <i class="bi bi-arrow-counterclockwise"></i>
-        </button>
-    </div>
+<!-- Message aucun résultat -->
+<div id="no-results" class="no-results text-center py-5">
+    <i class="bi bi-exclamation-circle fs-1 text-muted"></i>
+    <h4 class="mt-3">Aucun bien ne correspond à vos critères</h4>
+    <button class="btn btn-outline-primary mt-3" id="reset-filters-msg">
+        Réinitialiser les filtres
+    </button>
 </div>
-</div>
-
-
 
 <!-- Liste des biens -->
 <div class="row justify-content-center" id="biens-container">
     {% for bien in biens %}
-    <div class="col-md-4 col-sm-6 mb-5" 
+    <div class="col-md-4 col-sm-6 mb-5 bien-item" 
          data-type="{{ bien.type_bien|lower }}" 
          data-price="{{ bien.prix }}"
          data-surface="{{ bien.surface }}"
          data-statut="{{ bien.statut|lower }}">
         <div class="card shadow-lg position-relative h-100 border-0 rounded-4 overflow-hidden">
-
             {% if bien.a_la_une %}
             <div class="badge-alaune">
                 <i class="bi bi-star-fill"></i> À la une
@@ -223,7 +236,6 @@
                     <input type="hidden" id="coords-{{ bien.id }}" 
                            value="{% if bien.localisation %}{{ bien.localisation.y|stringformat:'f' }},{{ bien.localisation.x|stringformat:'f' }}{% endif %}">
                     <input type="hidden" id="zone-geom-{{ bien.id }}" value="{{ bien.geojson|safe|force_escape }}">
-                          
                     {% endif %}
                 </div>
                 <div class="modal-footer">
@@ -271,65 +283,68 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Gestion des filtres
-    document.getElementById('apply-filters').addEventListener('click', function() {
-    const type = document.getElementById('filter-type').value.toLowerCase();
-    const statut = document.getElementById('filter-statut').value.toLowerCase();
-    const maxPrice = parseFloat(document.getElementById('filter-price').value);
-    const minSurface = parseFloat(document.getElementById('filter-surface').value);
+    const applyFilters = function() {
+        const type = document.getElementById('filter-type').value.toLowerCase();
+        const statut = document.getElementById('filter-statut').value.toLowerCase();
+        const maxPrice = parseFloat(document.getElementById('filter-price').value) || Infinity;
+        const minSurface = parseFloat(document.getElementById('filter-surface').value) || 0;
 
-    let countVisible = 0;
+        let countVisible = 0;
+        const bienItems = document.querySelectorAll('.bien-item');
 
-    document.querySelectorAll('#biens-container > div').forEach(bien => {
-        const bienType = bien.dataset.type
-        const bienStatut = bien.dataset.statut
-        const bienPrice = parseFloat(bien.dataset.price);
-        const bienSurface = parseFloat(bien.dataset.surface);
+        bienItems.forEach(bien => {
+            const bienType = bien.dataset.type;
+            const bienStatut = bien.dataset.statut;
+            const bienPrice = parseFloat(bien.dataset.price);
+            const bienSurface = parseFloat(bien.dataset.surface);
 
-        let shouldShow = true;
+            const typeMatch = !type || bienType === type;
+            const statutMatch = !statut || bienStatut === statut;
+            const priceMatch = bienPrice <= maxPrice;
+            const surfaceMatch = bienSurface >= minSurface;
 
-        if (type && bienType !== type) shouldShow = false;
-        if (statut && bienStatut !== statut) shouldShow = false;
-        if (!isNaN(maxPrice) && bienPrice > maxPrice) shouldShow = false;
-        if (!isNaN(minSurface) && bienSurface < minSurface) shouldShow = false;
+            if (typeMatch && statutMatch && priceMatch && surfaceMatch) {
+                bien.style.display = 'block';
+                countVisible++;
+            } else {
+                bien.style.display = 'none';
+            }
+        });
 
-        bien.style.display = shouldShow ? 'block' : 'none';
-        if (shouldShow) countVisible++;
-    });
-
-    // Gestion du message "Aucun bien"
-    let message = document.getElementById('no-results-message');
-    if (countVisible === 0) {
-        if (!message) {
-            message = document.createElement('div');
-            message.id = 'no-results-message';
-            message.className = 'col-12 text-center py-5';
-            message.innerHTML = `
-                <i class="bi bi-exclamation-circle fs-1 text-muted"></i>
-                <h4 class="mt-3">Aucun bien ne correspond à vos critères</h4>
-                <button class="btn btn-outline-primary mt-3" id="reset-filters-msg">
-                    Réinitialiser les filtres
-                </button>
-            `;
-            document.getElementById('biens-container').appendChild(message);
-            document.getElementById('reset-filters-msg').addEventListener('click', function () {
-                document.getElementById('reset-filters').click();
-            });
+        // Afficher ou masquer le message "Aucun résultat"
+        const noResults = document.getElementById('no-results');
+        if (countVisible === 0) {
+            noResults.classList.remove('no-results');
+        } else {
+            noResults.classList.add('no-results');
         }
-    } else {
-        if (message) {
-            message.remove();
-        }
-    }
-});
+    };
 
+    // Appliquer les filtres au clic
+    document.getElementById('apply-filters').addEventListener('click', applyFilters);
 
+    // Réinitialiser les filtres
     document.getElementById('reset-filters').addEventListener('click', function() {
         document.getElementById('filter-type').value = '';
+        document.getElementById('filter-statut').value = '';
         document.getElementById('filter-price').value = '';
         document.getElementById('filter-surface').value = '';
-        document.querySelectorAll('#biens-container > div').forEach(bien => {
+        
+        document.querySelectorAll('.bien-item').forEach(bien => {
             bien.style.display = 'block';
         });
+        
+        document.getElementById('no-results').classList.add('no-results');
+    });
+
+    // Réinitialiser depuis le message "Aucun résultat"
+    document.getElementById('reset-filters-msg').addEventListener('click', function() {
+        document.getElementById('reset-filters').click();
+    });
+
+    // Appliquer les filtres aussi lors du changement des inputs (optionnel)
+    document.querySelectorAll('#filter-type, #filter-statut, #filter-price, #filter-surface').forEach(input => {
+        input.addEventListener('change', applyFilters);
     });
 
     // Dictionnaire pour stocker les instances de carte
@@ -345,29 +360,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const map = L.map(mapElement.id);
         maps[bienId] = map;
-            // 🗺️ OpenStreetMap Layer
-    const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);    
-    // 🗺️ Google Maps Layer (via Leaflet-providers)
-    const googleLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-    maxZoom: 20,
-    subdomains: ['mt0','mt1','mt2','mt3'],
-    attribution: '&copy; <a href="https://maps.google.com/">Google Maps</a>'});
-    const googleSatellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-   maxZoom: 20,
-   subdomains: ['mt0','mt1','mt2','mt3']
-});
-    // 🗂️ Basemaps
-    const baseLayers = {
-    "OpenStreetMap": osmLayer,
-    "Google Maps": googleLayer,
-    'googleSatellite':googleSatellite
-};
 
-// 🧭 Ajouter le contrôle
-L.control.layers(baseLayers).addTo(map);
+        // Couches de carte
+        const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
-        
+        const googleLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0','mt1','mt2','mt3'],
+            attribution: '&copy; <a href="https://maps.google.com/">Google Maps</a>'
+        });
+
+        const googleSatellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0','mt1','mt2','mt3']
+        });
+
+        // Contrôle des couches
+        const baseLayers = {
+            "OpenStreetMap": osmLayer,
+            "Google Maps": googleLayer,
+            "Satellite": googleSatellite
+        };
+        L.control.layers(baseLayers).addTo(map);
 
         let hasData = false;
 
@@ -381,52 +397,40 @@ L.control.layers(baseLayers).addTo(map);
                 hasData = true;
             }
         }
-        console.log(zoneGeomInput)
+
         // Gestion des polygones
         if (zoneGeomInput && zoneGeomInput.value) {
             try {
                 let geojsonStr = zoneGeomInput.value.trim();
+                geojsonStr = geojsonStr.replace(/'/g, '"').replace(/\\/g, '');
                 
-                
-                // Correction des problèmes de format JSON
-                geojsonStr = geojsonStr.replace(/'/g, '"');
-                geojsonStr = geojsonStr.replace(/\\/g, '');
-                
-                // Vérification que la chaîne commence par { et finit par }
-                if (!geojsonStr.startsWith('{') || !geojsonStr.endsWith('}')) {
-                    console.error("Format GeoJSON invalide - doit être un objet JSON");
-                    return;
-                }
-
-                const geojson = JSON.parse(geojsonStr);
-                
-                // Validation supplémentaire du GeoJSON
-                if (!geojson.type || !geojson.coordinates) {
-                    console.error("Structure GeoJSON invalide", geojson);
-                    return;
-                }
-                console.log("tte")
-                const polygon = L.geoJSON(geojson, {
-                    style: {
-                        fillColor: "#3388ff",
-                        color: "#3388ff",
-                        weight: 2,
-                        opacity: 1,
-                        fillOpacity: 0.2
+                if (geojsonStr.startsWith('{') && geojsonStr.endsWith('}')) {
+                    const geojson = JSON.parse(geojsonStr);
+                    
+                    if (geojson.type && geojson.coordinates) {
+                        const polygon = L.geoJSON(geojson, {
+                            style: {
+                                fillColor: "#3388ff",
+                                color: "#3388ff",
+                                weight: 2,
+                                opacity: 1,
+                                fillOpacity: 0.2
+                            }
+                        }).addTo(map);
+                        
+                        if (!hasData) {
+                            map.fitBounds(polygon.getBounds());
+                        }
+                        hasData = true;
                     }
-                }).addTo(map);
-                
-                if (!hasData) {
-                    map.fitBounds(polygon.getBounds());
                 }
             } catch (e) {
                 console.error("Erreur lors du traitement du GeoJSON:", e);
-                console.log("Données brutes zone_geom:", zoneGeomInput.value);
             }
         }
 
-        if (!hasData && (!coordsInput || !coordsInput.value) && (!zoneGeomInput || !zoneGeomInput.value)) {
-            map.setView([0, 0], 2);
+        if (!hasData) {
+            map.setView([8, 1.1], 8); // Vue par défaut sur le Togo
         }
     }
 
@@ -434,7 +438,6 @@ L.control.layers(baseLayers).addTo(map);
     document.querySelectorAll('.btn-voir-detail').forEach(button => {
         button.addEventListener('click', function() {
             const bienId = this.getAttribute('data-bien-id');
-            // Petit délai pour s'assurer que le modal est visible
             setTimeout(() => initMap(bienId), 50);
         });
     });
@@ -464,4 +467,4 @@ L.control.layers(baseLayers).addTo(map);
     });
 });
 </script>
-{% endblock %} 
+{% endblock %}

@@ -80,30 +80,31 @@ WSGI_APPLICATION = "geoimmo.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-'''
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'gestion_immo',
         'USER': 'postgres',
-        'PASSWORD': 'pk617181',
+        'PASSWORD': '1234',
         'HOST': 'localhost',
         'PORT': '5432',
     }
 }
-'''
+
 
 import dj_database_url
 import os
 
-
+'''
+'PASSWORD'pk617181',
 DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get("DATABASE_URL"),
         engine='django.contrib.gis.db.backends.postgis'  # Important !
     )
 }
-
+'''
 
 
 # Password validation
