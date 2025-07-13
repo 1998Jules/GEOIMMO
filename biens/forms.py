@@ -9,7 +9,7 @@ class BienImmobilierForm(forms.ModelForm):
             'titre', 'description', 'type_bien', 'surface', 'prix', 'statut',
             'proprietaire', 'a_la_une', 'localisation', 'zone_geom',
             'image_principale', 'plan_terrain',
-            'nom_vendeur', 'contact_vendeur'
+            'nom_vendeur', 'contact_vendeur','localite',
         ]
         widgets = {
             'localisation': forms.TextInput(attrs={
@@ -20,6 +20,12 @@ class BienImmobilierForm(forms.ModelForm):
                 'type': 'hidden',
                 'id': 'id_zone_geom'
             }),
+            'localite': forms.TextInput(attrs={
+    'class': 'form-control',
+    'placeholder': 'Commencez à taper une localité...',
+    'autocomplete': 'on',
+    'list': 'localite-suggestions',
+}),
         }
 
     def clean(self):

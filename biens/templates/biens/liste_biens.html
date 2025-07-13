@@ -81,6 +81,11 @@
             <label for="filter-surface" class="form-label">Surface min (m²)</label>
             <input type="number" class="form-control" id="filter-surface" placeholder="Surface minimum">
         </div>
+        <div class="col-md-3 mb-2">
+    <label for="filter-localite" class="form-label">Localité</label>
+    <input type="text" class="form-control" id="filter-localite" placeholder="Rechercher une localité">
+</div>
+
         <div class="col-md-3 d-flex align-items-end">
             <button class="btn btn-primary me-2 w-50" id="apply-filters">
                 <i class="bi bi-funnel"></i> Filtrer
@@ -108,7 +113,8 @@
          data-type="{{ bien.type_bien|lower }}" 
          data-price="{{ bien.prix }}"
          data-surface="{{ bien.surface }}"
-         data-statut="{{ bien.statut|lower }}">
+         data-statut="{{ bien.statut|lower }}"
+         data-localite="{{ bien.localite|lower }}">
         <div class="card shadow-lg position-relative h-100 border-0 rounded-4 overflow-hidden">
             {% if bien.a_la_une %}
             <div class="badge-alaune">
@@ -288,6 +294,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const statut = document.getElementById('filter-statut').value.toLowerCase();
         const maxPrice = parseFloat(document.getElementById('filter-price').value) || Infinity;
         const minSurface = parseFloat(document.getElementById('filter-surface').value) || 0;
+         const localite = document.getElementById('filter-localite').value.toLowerCase();
 
         let countVisible = 0;
         const bienItems = document.querySelectorAll('.bien-item');
@@ -297,13 +304,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const bienStatut = bien.dataset.statut;
             const bienPrice = parseFloat(bien.dataset.price);
             const bienSurface = parseFloat(bien.dataset.surface);
+            const bienLocalite = bien.dataset.localite;
 
             const typeMatch = !type || bienType === type;
             const statutMatch = !statut || bienStatut === statut;
             const priceMatch = bienPrice <= maxPrice;
             const surfaceMatch = bienSurface >= minSurface;
+            const localiteMatch = !localite || bienLocalite.includes(localite);
 
-            if (typeMatch && statutMatch && priceMatch && surfaceMatch) {
+            if (typeMatch && statutMatch && priceMatch && surfaceMatch && localiteMatch) {
                 bien.style.display = 'block';
                 countVisible++;
             } else {
@@ -343,8 +352,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Appliquer les filtres aussi lors du changement des inputs (optionnel)
-    document.querySelectorAll('#filter-type, #filter-statut, #filter-price, #filter-surface').forEach(input => {
+    document.querySelectorAll('#filter-type, #filter-statut, #filter-price, #filter-surface,#filter-localite').forEach(input => {
         input.addEventListener('change', applyFilters);
+         input.addEventListener('input', applyFilters);
     });
 
     // Dictionnaire pour stocker les instances de carte

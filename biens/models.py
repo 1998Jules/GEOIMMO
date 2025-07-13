@@ -48,6 +48,7 @@ class BienImmobilier(models.Model):
         if self.zone_geom:
             return self.zone_geom.geojson  # Retourne directement la chaîne GeoJSON
         return None
+    localite = models.CharField(max_length=100, blank=True, null=True)
 
 
 

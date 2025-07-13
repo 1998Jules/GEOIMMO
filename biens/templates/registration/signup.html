@@ -4,18 +4,152 @@
     <meta charset="UTF-8" />
     <title>Inscription | Habitat-TOUT-EN-UN</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .form-container {
+            max-width: 500px;
+            margin: 2rem auto;
+            padding: 2.5rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+        }
+        .form-title {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+        .form-floating label {
+            color: #7f8c8d;
+        }
+        .form-text {
+            font-size: 0.85rem;
+            color: #95a5a6;
+        }
+        .password-requirements {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .requirement {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+        .requirement i {
+            margin-right: 0.5rem;
+            margin-top: 0.2rem;
+        }
+        .valid {
+            color: #2ecc71;
+        }
+        .invalid {
+            color: #e74c3c;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            border-color: #3498db;
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+        }
+        .login-link {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .login-link:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body class="bg-light">
     <div class="container py-5">
-        <h2 class="mb-4">Créer un compte</h2>
-        <form method="post" novalidate>
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">S'inscrire</button>
-        </form>
-        <p class="mt-3">
-            Déjà un compte ? <a href="{% url 'connexion' %}">Se connecter</a>
-        </p>
+        <div class="form-container">
+            <h2 class="form-title text-center"><i class="bi bi-person-plus me-2"></i>Créer un compte</h2>
+            
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                <!-- Champ Username -->
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="id_username" name="username" 
+                           placeholder="Nom d'utilisateur" required>
+                    <label for="id_username">Nom d'utilisateur</label>
+                    <div class="form-text">
+                        150 caractères maximum. Lettres, chiffres et @/./+/-/_ uniquement.
+                    </div>
+                </div>
+                
+                <!-- Champ Mot de passe -->
+                <div class="form-floating mb-3">
+                    <input type="password" class="form-control" id="id_password1" name="password1" 
+                           placeholder="Mot de passe" required>
+                    <label for="id_password1">Mot de passe</label>
+                </div>
+                
+                <!-- Exigences mot de passe -->
+                <div class="password-requirements mb-4">
+                    <h6 class="mb-3">Exigences du mot de passe :</h6>
+                    <div class="requirement">
+                        <i class="bi bi-check-circle-fill valid"></i>
+                        <span>Au moins 8 caractères</span>
+                    </div>
+                    <div class="requirement">
+                        <i class="bi bi-check-circle-fill valid"></i>
+                        <span>Ne peut pas être trop similaire à vos autres informations</span>
+                    </div>
+                    <div class="requirement">
+                        <i class="bi bi-check-circle-fill valid"></i>
+                        <span>Ne peut pas être un mot de passe couramment utilisé</span>
+                    </div>
+                    <div class="requirement">
+                        <i class="bi bi-check-circle-fill valid"></i>
+                        <span>Ne peut pas être entièrement numérique</span>
+                    </div>
+                </div>
+                
+                <!-- Confirmation mot de passe -->
+                <div class="form-floating mb-4">
+                    <input type="password" class="form-control" id="id_password2" name="password2" 
+                           placeholder="Confirmation du mot de passe" required>
+                    <label for="id_password2">Confirmation du mot de passe</label>
+                    <div class="form-text">
+                        Entrez le même mot de passe que précédemment, pour vérification.
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
+                    <i class="bi bi-person-check me-2"></i>S'inscrire
+                </button>
+                
+                <p class="text-center mt-3">
+                    Déjà un compte ? <a href="{% url 'connexion' %}" class="login-link">Se connecter</a>
+                </p>
+            </form>
+        </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Script pour valider les exigences du mot de passe en temps réel
+        document.getElementById('id_password1').addEventListener('input', function() {
+            const password = this.value;
+            const requirements = {
+                length: password.length >= 8,
+                numeric: !/^\d+$/.test(password),
+                common: password.length > 0 && !['password', '12345678', 'qwerty'].includes(password.toLowerCase()),
+                similar: true // Cette vérification nécessiterait plus de logique
+            };
+            
+            // Mettre à jour les icônes en fonction de la validation
+            document.querySelectorAll('.requirement i').forEach((icon, index) => {
+                const isValid = Object.values(requirements)[index];
+                icon.className = isValid ? 
+                    'bi bi-check-circle-fill valid' : 
+                    'bi bi-x-circle-fill invalid';
+            });
+        });
+    </script>
 </body>
 </html>
