@@ -10,6 +10,7 @@ from django.core.paginator import Paginator
 from .forms import BienImmobilierForm, ContactAnnonceurForm
 from .models import MediaBien, BienImmobilier, Message  # Assure-toi d’avoir un modèle Message
 
+
 # ➤ Tableau de bord vendeur
 @login_required
 def dashboard_vendeur(request):
@@ -207,3 +208,42 @@ def mes_demandes(request):
     demandes = DemandeContact.objects.filter(bien__in=biens_vendeur).order_by('-date_envoi')
     return render(request, 'biens/mes_demandes.html', {'demandes': demandes})
 
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import json
+from .models import BienImmobilier
+# biens/views.py
+@csrf_exempt
+def api_modifier_bien(request, pk):
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            bien = BienImmobilier.objects.get(pk=pk)
+
+            bien.titre = data.get('titre', bien.titre)
+            bien.prix = data.get('prix', bien.prix)
+            bien.description = data.get('description', bien.description)
+            bien.statut = data.get('statut', bien.statut)
+            bien.save()
+
+            return JsonResponse({'message': 'Bien mis à jour avec succès'})
+        except BienImmobilier.DoesNotExist:
+            return JsonResponse({'error': 'Bien non trouvé'}, status=404)
+    return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
+
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import BienImmobilier
+from .forms import BienImmobilierForm  # Le formulaire que tu utilises
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def modifier_bien(request, pk):
+    bien = BienImmobilier.objects.get(id=pk, proprietaire=request.user) # sécurise avec l'utilisateur
+    if request.method == 'POST':
+        form = BienImmobilierForm(request.POST, request.FILES, instance=bien)
+        if form.is_valid():
+            form.save()
+            return redirect('liste_biens')  # ou une autre page
+    else:
+        form = BienImmobilierForm(instance=bien)
+    return render(request, 'biens/ajouter_bien.html', {'form': form, 'bien': bien})

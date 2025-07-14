@@ -35,8 +35,8 @@ class BienImmobilier(models.Model):
     statut = models.CharField(max_length=20, choices=STATUT_CHOIX, default='vente')
     localisation = geomodels.PointField(null=True, blank=True)
     zone_geom = geomodels.PolygonField(null=True, blank=True)
-    image_principale = models.ImageField(upload_to='images_biens/', null=True, blank=True)
-    plan_terrain = models.ImageField(upload_to='plans/', null=True, blank=True)
+    image_principale = models.ImageField(null=True, blank=True)
+    plan_terrain = models.ImageField( null=True, blank=True)
     date_ajout = models.DateTimeField(auto_now_add=True)
 
     proprietaire = models.ForeignKey(User, on_delete=models.CASCADE, related_name='biens', null=True, blank=True)
@@ -44,11 +44,12 @@ class BienImmobilier(models.Model):
     contact_vendeur = models.CharField(max_length=20, default="0000000000", blank=True)
     vues = models.PositiveIntegerField(default=0) 
     a_la_une = models.BooleanField(default=False)
+    localite = models.CharField(max_length=100, blank=True,null=True)
     def zone_geom_to_geojson(self):
         if self.zone_geom:
             return self.zone_geom.geojson  # Retourne directement la chaîne GeoJSON
         return None
-    localite = models.CharField(max_length=100, blank=True, null=True)
+
 
 
 
@@ -58,7 +59,7 @@ class BienImmobilier(models.Model):
 
 class MediaBien(models.Model):
     bien = models.ForeignKey(BienImmobilier, related_name='medias', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='images_biens/')
+    image = models.ImageField()
     description = models.CharField(max_length=255, blank=True, null=True)
     est_plan = models.BooleanField(default=False)  # Pour différencier photo normale / plan
 
@@ -88,7 +89,7 @@ class Article(models.Model):
     titre = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
     contenu = models.TextField()
-    image = models.ImageField(upload_to='articles/')
+    image = models.ImageField()
     categorie = models.ForeignKey(Categorie, on_delete=models.SET_NULL, null=True)
     auteur = models.ForeignKey(User, on_delete=models.CASCADE)
     date_publication = models.DateTimeField(auto_now_add=True)

@@ -52,7 +52,7 @@
 <!-- Section Filtres -->
 <div class="filters-section">
     <div class="row mb-4 bg-white p-3 rounded shadow-sm sticky-top" style="top: 70px; z-index: 1020;">
-        <div class="col-md-3 mb-2">
+        <div class="col-md-2 mb-2">
             <label for="filter-type" class="form-label">Type de bien</label>
             <select class="form-select" id="filter-type">
                 <option value="">Tous les types</option>
@@ -63,7 +63,7 @@
                 <option value="chambre">Chambre</option>
             </select>
         </div>
-        <div class="col-md-3 mb-2">
+        <div class="col-md-2 mb-2">
             <label for="filter-statut" class="form-label">Statut</label>
             <select class="form-select" id="filter-statut">
                 <option value="">Tous les statuts</option>
@@ -73,13 +73,13 @@
                 <option value="loué">Loué</option>
             </select>
         </div>
-        <div class="col-md-3 mb-2">
+        <div class="col-md-2 mb-2">
             <label for="filter-price" class="form-label">Prix max (FCFA)</label>
             <input type="number" class="form-control" id="filter-price" placeholder="Prix maximum">
         </div>
-        <div class="col-md-3 mb-2">
+        <div class="col-md-2 mb-2">
             <label for="filter-surface" class="form-label">Surface min (m²)</label>
-            <input type="number" class="form-control" id="filter-surface" placeholder="Surface minimum">
+            <input type="number" class="form-control" id="filter-surface" placeholder="Surface min">
         </div>
         <div class="col-md-3 mb-2">
     <label for="filter-localite" class="form-label">Localité</label>
@@ -442,6 +442,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!hasData) {
             map.setView([8, 1.1], 8); // Vue par défaut sur le Togo
         }
+        setTimeout(() => {
+    map.invalidateSize();
+}, 100);
     }
 
     // Initialiser les cartes quand les modaux sont ouverts

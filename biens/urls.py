@@ -1,8 +1,8 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import ajouter_bien, liste_biens, signup, contacter_annonceur, dashboard_vendeur,a_propos,blog,Expertise,mes_annonces,changer_statut_bien, voir_bien,incrementer_vue,detail_article,form_contact,mes_demandes
-
-
+from .views import api_modifier_bien
+from . import views
 urlpatterns = [
     path('biens/ajouter/', ajouter_bien, name='ajouter_bien'),
     path('', liste_biens, name='liste_biens'),
@@ -20,6 +20,9 @@ urlpatterns = [
     path('biens/<int:bien_id>/increment_vue/', incrementer_vue, name='increment_vue'),
     path('biens/form-contact/', form_contact, name='form_contact'),  
     path('biens/blog/<slug:slug>/', detail_article, name='detail_article'),
-    path('biens/mes-demandes/', mes_demandes, name='mes_demandes')
+    path('biens/mes-demandes/', mes_demandes, name='mes_demandes'),
+    path('api/biens/<int:pk>/modifier/', api_modifier_bien, name='api_modifier_bien'),
+      path('biens/modifier/<int:pk>/', views.modifier_bien, name='modifier_bien'),
+   
      
 ]
