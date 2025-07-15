@@ -62,9 +62,11 @@ class MediaBien(models.Model):
     image = models.ImageField()
     description = models.CharField(max_length=255, blank=True, null=True)
     est_plan = models.BooleanField(default=False)  # Pour différencier photo normale / plan
+    
 
     def __str__(self):
         return f"Media pour {self.bien.titre}"
+
 from django.db import models
 from django.contrib.auth.models import User
 

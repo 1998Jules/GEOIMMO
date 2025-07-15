@@ -213,37 +213,50 @@ from django.http import JsonResponse
 import json
 from .models import BienImmobilier
 # biens/views.py
-@csrf_exempt
-def api_modifier_bien(request, pk):
-    if request.method == 'PUT':
-        try:
-            data = json.loads(request.body)
-            bien = BienImmobilier.objects.get(pk=pk)
-
-            bien.titre = data.get('titre', bien.titre)
-            bien.prix = data.get('prix', bien.prix)
-            bien.description = data.get('description', bien.description)
-            bien.statut = data.get('statut', bien.statut)
-            bien.save()
-
-            return JsonResponse({'message': 'Bien mis à jour avec succès'})
-        except BienImmobilier.DoesNotExist:
-            return JsonResponse({'error': 'Bien non trouvé'}, status=404)
-    return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
 
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import BienImmobilier
 from .forms import BienImmobilierForm  # Le formulaire que tu utilises
 from django.contrib.auth.decorators import login_required
 
+from .models import MediaBien
+from .forms import BienImmobilierForm
+from django.contrib.auth.decorators import login_required
+
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth.decorators import login_required
+from .models import BienImmobilier, MediaBien
+from .forms import BienImmobilierForm
 @login_required
 def modifier_bien(request, pk):
-    bien = BienImmobilier.objects.get(id=pk, proprietaire=request.user) # sécurise avec l'utilisateur
+    bien = get_object_or_404(BienImmobilier, id=pk, proprietaire=request.user)
+
     if request.method == 'POST':
         form = BienImmobilierForm(request.POST, request.FILES, instance=bien)
+
         if form.is_valid():
-            form.save()
-            return redirect('liste_biens')  # ou une autre page
+            # ⚠️ Ne pas supprimer manuellement image_principale ici
+
+            bien = form.save(commit=False)
+            bien.proprietaire = request.user
+            bien.save()
+
+            # Supprimer et ajouter les nouvelles images complémentaires si fournies
+            fichiers = request.FILES.getlist('medias')
+            if fichiers:
+                MediaBien.objects.filter(bien=bien).delete()
+                for fichier in fichiers:
+                    MediaBien.objects.create(
+                        bien=bien,
+                        image=fichier,
+                        est_plan=False
+                    )
+
+            return redirect('mes_annonces')
     else:
         form = BienImmobilierForm(instance=bien)
-    return render(request, 'biens/ajouter_bien.html', {'form': form, 'bien': bien})
+
+    return render(request, 'biens/ajouter_bien.html', {
+        'form': form,
+        'bien': bien
+    })

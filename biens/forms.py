@@ -7,7 +7,7 @@ class BienImmobilierForm(forms.ModelForm):
         model = BienImmobilier
         fields = [
             'titre', 'description', 'type_bien', 'surface', 'prix', 'statut',
-            'proprietaire', 'a_la_une', 'localisation', 'zone_geom',
+            'a_la_une', 'localisation', 'zone_geom',
             'image_principale', 'plan_terrain',
             'nom_vendeur', 'contact_vendeur','localite',
         ]
@@ -46,3 +46,13 @@ class ContactAnnonceurForm(forms.Form):
     email = forms.EmailField(label="Adresse email", required=True)
     telephone = forms.CharField(label="Numéro de téléphone", max_length=20, required=True)
     message = forms.CharField(label="Message", widget=forms.Textarea, required=True)
+from django.forms import inlineformset_factory
+from .models import MediaBien
+
+MediaBienFormSet = inlineformset_factory(
+    BienImmobilier,
+    MediaBien,
+    fields=('image', 'description', 'est_plan'),
+    extra=1,
+    can_delete=True
+)
