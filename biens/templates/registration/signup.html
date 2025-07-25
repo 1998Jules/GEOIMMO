@@ -70,7 +70,8 @@
             
             <form method="post" novalidate>
                 {% csrf_token %}
-                
+                <input type="text" name="nom_complet" placeholder="Nom complet" required class="form-control mb-3">
+                <input type="text" name="telephone" placeholder="Téléphone" required class="form-control mb-3">
                 <!-- Champ Username -->
                 <div class="form-floating mb-3">
                     <input type="text" class="form-control" id="id_username" name="username" 

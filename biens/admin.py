@@ -20,7 +20,12 @@ class ArticleAdmin(admin.ModelAdmin):
 class CategorieAdmin(admin.ModelAdmin):
     list_display = ('nom',)
     prepopulated_fields = {"slug": ("nom",)}
+from .models import Profile
 
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'nom_complet', 'telephone')
+    search_fields = ('user__username', 'nom_complet', 'telephone')
 
 
 # Register your models here.

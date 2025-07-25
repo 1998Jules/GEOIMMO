@@ -68,16 +68,29 @@ def liste_biens(request):
 
 
 
-# ➤ Inscription utilisateur
+from django.contrib.auth.models import User
+from .models import Profile
+
 def signup(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
+        username = request.POST.get('username')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        nom_complet = request.POST.get('nom_complet')
+        telephone = request.POST.get('telephone')
+
+        if password1 == password2:
+            user = User.objects.create_user(username=username, password=password1)
+            # Mettre à jour le profil
+            user.profile.nom_complet = nom_complet
+            user.profile.telephone = telephone
+            user.profile.save()
             return redirect('connexion')
-    else:
-        form = UserCreationForm()
-    return render(request, 'registration/signup.html', {'form': form})
+        else:
+            # Tu peux gérer une erreur ici (ex: mot de passe différent)
+            pass
+    return render(request, 'registration/signup.html')
+
 
 
 from .models import DemandeContact
