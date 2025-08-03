@@ -41,6 +41,89 @@
             display: none;
         }
         
+        /* CSS pour uniformiser les dimensions des images */
+        .carousel-inner {
+            height: 250px; /* Hauteur fixe pour tous les carousels */
+        }
+        
+        .carousel-item img,
+        .card-img-top {
+            height: 250px !important; /* Hauteur fixe pour toutes les images de carousel */
+            width: 100% !important;
+            object-fit: cover; /* Maintient les proportions en rognant si nécessaire */
+            object-position: center; /* Centre l'image */
+        }
+        
+        /* Images dans les modales - image principale */
+        .modal-body .img-fluid {
+            height: 300px !important;
+            width: 100% !important;
+            object-fit: cover;
+            object-position: center;
+        }
+        
+        /* Images supplémentaires dans les modales */
+        .modal-body .row.g-3 img {
+            height: 120px !important;
+            width: 100% !important;
+            object-fit: cover;
+            object-position: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-body .row.g-3 img:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Assurer que les cartes ont la même hauteur */
+        .bien-item .card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .bien-item .card-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .bien-item .card-body .btn {
+            margin-top: auto;
+        }
+        
+        /* Amélioration responsive pour les petits écrans */
+        @media (max-width: 768px) {
+            .carousel-inner,
+            .carousel-item img,
+            .card-img-top {
+                height: 200px !important;
+            }
+            
+            .modal-body .img-fluid {
+                height: 250px !important;
+            }
+            
+            .modal-body .row.g-3 img {
+                height: 100px !important;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .carousel-inner,
+            .carousel-item img,
+            .card-img-top {
+                height: 180px !important;
+            }
+            
+            .modal-body .img-fluid {
+                height: 200px !important;
+            }
+            
+            .modal-body .row.g-3 img {
+                height: 80px !important;
+            }
+        }
     </style>
     
 
@@ -338,6 +421,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('filter-statut').value = '';
         document.getElementById('filter-price').value = '';
         document.getElementById('filter-surface').value = '';
+        document.getElementById('filter-localite').value = '';
         
         document.querySelectorAll('.bien-item').forEach(bien => {
             bien.style.display = 'block';
@@ -352,132 +436,73 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Appliquer les filtres aussi lors du changement des inputs (optionnel)
-    document.querySelectorAll('#filter-type, #filter-statut, #filter-price, #filter-surface,#filter-localite').forEach(input => {
+    document.querySelectorAll('#filter-type, #filter-statut, #filter-price, #filter-surface, #filter-localite').forEach(input => {
         input.addEventListener('change', applyFilters);
-         input.addEventListener('input', applyFilters);
     });
 
-    // Dictionnaire pour stocker les instances de carte
-    const maps = {};
+    // Gestion des modales et cartes
+    document.querySelectorAll('.btn-voir-detail').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const bienId = this.dataset.bienId;
+            const modalId = `modal${bienId}`;
+            
+            // Attendre que la modale soit complètement affichée
+            const modal = document.getElementById(modalId);
+            modal.addEventListener('shown.bs.modal', function() {
+                initModalMap(bienId);
+            }, { once: true });
+        });
+    });
 
-    // Fonction pour initialiser les cartes dans les modaux
-    function initMap(bienId) {
-        const mapElement = document.getElementById(`map-modal-${bienId}`);
-        if (!mapElement || maps[bienId]) return;
-
+    function initModalMap(bienId) {
+        const mapContainer = document.getElementById(`map-modal-${bienId}`);
         const coordsInput = document.getElementById(`coords-${bienId}`);
         const zoneGeomInput = document.getElementById(`zone-geom-${bienId}`);
+        
+        if (!mapContainer) return;
 
-        const map = L.map(mapElement.id);
-        maps[bienId] = map;
+        // Nettoyer la carte existante si elle existe
+        if (mapContainer._leaflet_id) {
+            mapContainer._leaflet_map.remove();
+        }
 
-        // Couches de carte
-        const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        const map = L.map(mapContainer).setView([6.1319, 1.2228], 10);
+        mapContainer._leaflet_map = map;
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        const googleLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-            maxZoom: 20,
-            subdomains: ['mt0','mt1','mt2','mt3'],
-            attribution: '&copy; <a href="https://maps.google.com/">Google Maps</a>'
-        });
-
-        const googleSatellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-            maxZoom: 20,
-            subdomains: ['mt0','mt1','mt2','mt3']
-        });
-
-        // Contrôle des couches
-        const baseLayers = {
-            "OpenStreetMap": osmLayer,
-            "Google Maps": googleLayer,
-            "Satellite": googleSatellite
-        };
-        L.control.layers(baseLayers).addTo(map);
-
-        let hasData = false;
-
-        // Gestion des coordonnées ponctuelles
+        // Ajouter le point de localisation
         if (coordsInput && coordsInput.value) {
-            const [lat, lng] = coordsInput.value.split(',').map(Number);
-            if (!isNaN(lat) && !isNaN(lng)) {
-                L.marker([lat, lng]).addTo(map)
-                    .bindPopup("Localisation du bien");
+            const coords = coordsInput.value.split(',');
+            if (coords.length === 2) {
+                const lat = parseFloat(coords[0]);
+                const lng = parseFloat(coords[1]);
+                L.marker([lat, lng]).addTo(map);
                 map.setView([lat, lng], 15);
-                hasData = true;
             }
         }
 
-        // Gestion des polygones
-        if (zoneGeomInput && zoneGeomInput.value) {
+        // Ajouter la zone géométrique
+        if (zoneGeomInput && zoneGeomInput.value && zoneGeomInput.value !== 'None') {
             try {
-                let geojsonStr = zoneGeomInput.value.trim();
-                geojsonStr = geojsonStr.replace(/'/g, '"').replace(/\\/g, '');
-                
-                if (geojsonStr.startsWith('{') && geojsonStr.endsWith('}')) {
-                    const geojson = JSON.parse(geojsonStr);
-                    
-                    if (geojson.type && geojson.coordinates) {
-                        const polygon = L.geoJSON(geojson, {
-                            style: {
-                                fillColor: "#3388ff",
-                                color: "#3388ff",
-                                weight: 2,
-                                opacity: 1,
-                                fillOpacity: 0.2
-                            }
-                        }).addTo(map);
-                        
-                        if (!hasData) {
-                            map.fitBounds(polygon.getBounds());
-                        }
-                        hasData = true;
-                    }
-                }
+                const geojson = JSON.parse(zoneGeomInput.value);
+                const layer = L.geoJSON(geojson, {
+                    className: 'leaflet-polygon'
+                }).addTo(map);
+                map.fitBounds(layer.getBounds());
             } catch (e) {
-                console.error("Erreur lors du traitement du GeoJSON:", e);
+                console.log('Erreur lors du parsing du GeoJSON:', e);
             }
         }
 
-        if (!hasData) {
-            map.setView([8, 1.1], 8); // Vue par défaut sur le Togo
-        }
+        // Forcer le redimensionnement de la carte
         setTimeout(() => {
-    map.invalidateSize();
-}, 100);
+            map.invalidateSize();
+        }, 100);
     }
-
-    // Initialiser les cartes quand les modaux sont ouverts
-    document.querySelectorAll('.btn-voir-detail').forEach(button => {
-        button.addEventListener('click', function() {
-            const bienId = this.getAttribute('data-bien-id');
-            setTimeout(() => initMap(bienId), 50);
-        });
-    });
-
-    // Script pour incrémenter les vues
-    document.querySelectorAll('.btn-voir-detail').forEach(bouton => {
-        bouton.addEventListener('click', function() {
-            const bienId = this.getAttribute('data-bien-id');
-            fetch(`/biens/${bienId}/increment_vue/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'ok') {
-                    console.log('Vues mises à jour pour le bien ID:', bienId);
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-            });
-        });
-    });
 });
 </script>
 {% endblock %}
+
