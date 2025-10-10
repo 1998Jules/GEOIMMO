@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Ma Galerie Photo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4"><i class="bi bi-image"></i> Ma galerie photo</h2>
+
+    <div class="row g-4">
+        {% for photo in photos %}
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm">
+                <img src="{{ photo.image.url }}" class="card-img-top rounded" alt="{{ photo.bien.titre }}">
+                <div class="card-body text-center p-2">
+                    <small class="text-muted">{{ photo.bien.titre }}</small>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">Aucune photo trouvée dans votre galerie.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

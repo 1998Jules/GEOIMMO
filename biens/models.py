@@ -117,3 +117,10 @@ class DemandeContact(models.Model):
         return f"Demande de {self.nom_prenom} pour {self.bien.titre}"
 
 
+class GaleriePhoto(models.Model):
+    bien = models.ForeignKey(BienImmobilier, on_delete=models.CASCADE, related_name='galerie_photos')
+    image = models.ImageField(upload_to='galerie/')
+    date_ajout = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Photo ({self.bien.titre})"

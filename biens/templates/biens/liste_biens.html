@@ -332,6 +332,39 @@
                     <a href="{% url 'contacter_annonceur' bien.id %}" class="btn btn-primary">
                         <i class="bi bi-envelope"></i> Contacter
                     </a>
+                    <div class="modal-footer d-flex justify-content-between flex-wrap">
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'contacter_annonceur' bien.id %}" class="btn btn-primary">
+            <i class="bi bi-envelope"></i> Contacter
+        </a>
+
+        <!-- 🔗 Boutons de partage -->
+        <div class="share-buttons">
+            <button class="btn btn-outline-success btn-sm share-whatsapp"
+                    data-title="{{ bien.titre }}"
+                    data-url="{{ request.build_absolute_uri }}">
+                <i class="bi bi-whatsapp"></i> WhatsApp
+            </button>
+            <button class="btn btn-outline-primary btn-sm share-facebook"
+                    data-title="{{ bien.titre }}"
+                    data-url="{{ request.build_absolute_uri }}">
+                <i class="bi bi-facebook"></i> Facebook
+            </button>
+            <button class="btn btn-outline-info btn-sm share-twitter"
+                    data-title="{{ bien.titre }}"
+                    data-url="{{ request.build_absolute_uri }}">
+                <i class="bi bi-twitter"></i> Twitter
+            </button>
+            <button class="btn btn-outline-secondary btn-sm share-copy"
+                    data-url="{{ request.build_absolute_uri }}">
+                <i class="bi bi-link-45deg"></i> Copier le lien
+            </button>
+        </div>
+    </div>
+</div>
+
+
+               
                 </div>
             </div>
         </div>
@@ -504,5 +537,43 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Partage WhatsApp
+    document.querySelectorAll(".share-whatsapp").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const title = encodeURIComponent(this.dataset.title);
+            const url = encodeURIComponent(this.dataset.url);
+            window.open(`https://wa.me/?text=${title}%20${url}`, "_blank");
+        });
+    });
+
+    // Partage Facebook
+    document.querySelectorAll(".share-facebook").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const url = encodeURIComponent(this.dataset.url);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, "_blank");
+        });
+    });
+
+    // Partage Twitter / X
+    document.querySelectorAll(".share-twitter").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const title = encodeURIComponent(this.dataset.title);
+            const url = encodeURIComponent(this.dataset.url);
+            window.open(`https://twitter.com/intent/tweet?text=${title}&url=${url}`, "_blank");
+        });
+    });
+
+    // Copier le lien
+    document.querySelectorAll(".share-copy").forEach(btn => {
+        btn.addEventListener("click", function() {
+            navigator.clipboard.writeText(this.dataset.url);
+            alert("Lien copié dans le presse-papiers ✅");
+        });
+    });
+});
+</script>
+
 {% endblock %}
 

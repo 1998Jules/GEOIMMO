@@ -8,7 +8,7 @@ from .models import Article
 from django.core.paginator import Paginator
 
 from .forms import BienImmobilierForm, ContactAnnonceurForm
-from .models import MediaBien, BienImmobilier, Message  # Assure-toi d’avoir un modèle Message
+from .models import MediaBien, BienImmobilier, Message ,GaleriePhoto # Assure-toi d’avoir un modèle Message
 
 
 # ➤ Tableau de bord vendeur
@@ -42,7 +42,19 @@ def ajouter_bien(request):
             bien = form.save(commit=False)
             bien.proprietaire = request.user
             bien.save()
+        # ✅ Image principale → Galerie
+            if bien.image_principale:
+                GaleriePhoto.objects.create(bien=bien, image=bien.image_principale)
 
+            # ✅ Plan du terrain → Galerie
+            if bien.plan_terrain:
+                GaleriePhoto.objects.create(bien=bien, image=bien.plan_terrain)
+
+            # ✅ Images supplémentaires → MediaBien + Galerie
+            for fichier in fichiers:
+                media = MediaBien.objects.create(bien=bien, image=fichier)
+                GaleriePhoto.objects.create(bien=bien, image=fichier)
+        
             for f in fichiers:
                 MediaBien.objects.create(
                     bien=bien,
@@ -273,3 +285,6 @@ def modifier_bien(request, pk):
         'form': form,
         'bien': bien
     })
+def galerie_photo(request):
+    photos = GaleriePhoto.objects.filter(bien__proprietaire=request.user).order_by('-date_ajout')
+    return render(request, 'biens/galerie.html', {'photos': photos})

@@ -23,6 +23,7 @@ urlpatterns = [
     path('biens/mes-demandes/', mes_demandes, name='mes_demandes'),
    
       path('biens/modifier/<int:pk>/', views.modifier_bien, name='modifier_bien'),
+    path('biens/galerie/', views.galerie_photo, name='galerie_photo'),
    
      
 ]

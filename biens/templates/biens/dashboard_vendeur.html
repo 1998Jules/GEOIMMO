@@ -37,7 +37,12 @@
                 <li class="nav-item"><a href="{% url 'mes_annonces' %}" class="nav-link"><i class="bi bi-folder2-open"></i> Mes annonces</a></li>
                 <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-heart"></i> Annonces favoris</a></li>
                 <li class="nav-item"><a href="{% url 'mes_demandes' %}" class="nav-link"><i class="bi bi-chat-left-dots"></i> Mes demandes</a></li>
-                <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-image"></i> Galerie photo</a></li>
+                <li class="nav-item">
+    <a href="{% url 'galerie_photo' %}" class="nav-link">
+        <i class="bi bi-images"></i> Galerie photo
+    </a>
+</li>
+
                 <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-bell"></i> Alertes secteurs</a></li>
                 <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-calendar-check"></i> Mes réservations</a></li>
                 <hr>
