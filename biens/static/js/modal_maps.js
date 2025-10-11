@@ -11,10 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap'
             }).addTo(map);
-            L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-        maxZoom: 20,
-        attribution: '&copy; Google Satellite'
-    }).addTo(map)
+            
             
             
             L.marker([coords.lat, coords.lng]).addTo(map)

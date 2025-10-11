@@ -24,6 +24,7 @@ urlpatterns = [
    
       path('biens/modifier/<int:pk>/', views.modifier_bien, name='modifier_bien'),
     path('biens/galerie/', views.galerie_photo, name='galerie_photo'),
+    path('activation/<uidb64>/<token>/', views.activer_compte, name='activer_compte'),
    
      
 ]

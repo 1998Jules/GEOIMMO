@@ -83,6 +83,18 @@ def liste_biens(request):
 from django.contrib.auth.models import User
 from .models import Profile
 
+# biens/views.py
+from django.contrib.auth.models import User
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.conf import settings
+from django.shortcuts import render, redirect
+from django.urls import reverse
+
 def signup(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -90,22 +102,49 @@ def signup(request):
         password2 = request.POST.get('password2')
         nom_complet = request.POST.get('nom_complet')
         telephone = request.POST.get('telephone')
+        email = request.POST.get('email')
 
-        if password1 == password2:
-            user = User.objects.create_user(username=username, password=password1)
-            # Mettre à jour le profil
-            user.profile.nom_complet = nom_complet
-            user.profile.telephone = telephone
-            user.profile.save()
-            return redirect('connexion')
-        else:
-            # Tu peux gérer une erreur ici (ex: mot de passe différent)
-            pass
+        if password1 != password2:
+            return render(request, 'registration/signup.html', {'error': 'Les mots de passe ne correspondent pas.'})
+
+        if User.objects.filter(username=username).exists():
+            return render(request, 'registration/signup.html', {'error': 'Ce nom d’utilisateur existe déjà.'})
+
+        user = User.objects.create_user(username=username, password=password1, email=email)
+        user.is_active = False  # désactiver jusqu’à validation
+        user.save()
+
+        # Création du lien d’activation
+        current_site = get_current_site(request)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        activation_link = f"http://{current_site.domain}{reverse('activer_compte', kwargs={'uidb64': uid, 'token': token})}"
+
+        # Envoi du mail
+        sujet = "Activez votre compte GeoImmoTech"
+        message = render_to_string('registration/activation_email.html', {
+            'user': user,
+            'activation_link': activation_link
+        })
+        send_mail(
+            sujet,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
+
+        return render(request, 'registration/confirmation_envoyee.html', {'email': email})
+
     return render(request, 'registration/signup.html')
 
 
 
+
 from .models import DemandeContact
+
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
 
 def contacter_annonceur(request, bien_id):
     bien = get_object_or_404(BienImmobilier, id=bien_id)
@@ -117,36 +156,40 @@ def contacter_annonceur(request, bien_id):
             telephone = form.cleaned_data['telephone']
             message = form.cleaned_data['message']
 
-            # Création de la demande de contact en base
-            DemandeContact.objects.create(
+            contact = DemandeContact.objects.create(
                 bien=bien,
-                vendeur=bien.proprietaire,  # adapte selon ton champ vendeur/proprietaire
+                vendeur=bien.proprietaire,
                 nom_prenom=nom,
                 email=email,
                 telephone=telephone,
                 message=message,
             )
 
-            contenu = (
-                f"Vous avez un nouveau message concernant votre bien '{bien.titre}':\n\n"
-                f"Nom et prénom : {nom}\n"
-                f"Email : {email}\n"
-                f"Téléphone : {telephone}\n\n"
-                f"Message :\n{message}"
-            )
+            # 📨 Préparer l’email
+            subject = f"Nouveau message pour votre bien '{bien.titre}'"
+            html_message = render_to_string('biens/nouveau_message.html', {
+                'bien': bien,
+                'vendeur': bien.proprietaire,
+                'nom': nom,
+                'email': email,
+                'telephone': telephone,
+                'message': message,
+            })
 
-            send_mail(
-                subject=f"Contact pour votre bien '{bien.titre}'",
-                message=contenu,
+            email_msg = EmailMessage(
+                subject=subject,
+                body=html_message,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[bien.proprietaire.email],
-                fail_silently=False,
+                to=[bien.proprietaire.email],
             )
+            email_msg.content_subtype = 'html'  # pour envoyer du HTML
+            email_msg.send(fail_silently=False)
 
             return render(request, 'biens/contact_success.html', {'bien': bien})
     else:
         form = ContactAnnonceurForm()
     return render(request, 'biens/contacter.html', {'form': form, 'bien': bien})
+
 
 from django.shortcuts import render
 
@@ -288,3 +331,19 @@ def modifier_bien(request, pk):
 def galerie_photo(request):
     photos = GaleriePhoto.objects.filter(bien__proprietaire=request.user).order_by('-date_ajout')
     return render(request, 'biens/galerie.html', {'photos': photos})
+# biens/views.py
+from django.utils.encoding import force_str
+
+def activer_compte(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        return render(request, 'registration/activation_reussie.html')
+    else:
+        return render(request, 'registration/activation_invalide.html')

@@ -1,15 +1,78 @@
+
 {% extends 'base.html' %}
+
 {% load static %}
 
 {% block title %}{{ article.titre }}{% endblock %}
 
 {% block content %}
 <div class="container py-5">
+    <!-- Titre et informations -->
     <h1 class="mb-3">{{ article.titre }}</h1>
-    <p class="text-muted">Publié le {{ article.date_publication|date:"d F Y" }} | {{ article.vues }} vues</p>
+    <p class="text-muted">
+        Publié le {{ article.date_publication|date:"d F Y" }} | {{ article.vues }} vues
+    </p>
+
+    <!-- Image principale -->
     <img src="{{ article.image.url }}" class="img-fluid rounded mb-4" alt="{{ article.titre }}">
-    <div>
+
+    <!-- Contenu -->
+    <div class="mb-5">
         {{ article.contenu|linebreaks }}
     </div>
+
+    <hr class="my-4">
+
+    <!-- 🔗 Section de partage -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <h5 class="fw-bold mb-3 mb-md-0">Partager cet article :</h5>
+
+        <div class="dropdown">
+            <button class="btn btn-outline-success dropdown-toggle" type="button" id="shareDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-share"></i> Partager
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="shareDropdown">
+                <li>
+                    <a class="dropdown-item" href="https://wa.me/?text={{ article.titre }} - {{ request.build_absolute_uri }}" target="_blank">
+                        <i class="bi bi-whatsapp text-success"></i> WhatsApp
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank">
+                        <i class="bi bi-facebook text-primary"></i> Facebook
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="https://twitter.com/intent/tweet?text={{ article.titre }}&url={{ request.build_absolute_uri }}" target="_blank">
+                        <i class="bi bi-twitter text-info"></i> X (Twitter)
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item share-copy" href="#" data-url="{{ request.build_absolute_uri }}">
+                        <i class="bi bi-link-45deg"></i> Copier le lien
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
 </div>
+
+<!-- 🧠 Script JS pour copie du lien -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const copyBtns = document.querySelectorAll(".share-copy");
+    copyBtns.forEach(btn => {
+        btn.addEventListener("click", function(e) {
+            e.preventDefault();
+            const url = this.getAttribute("data-url");
+            navigator.clipboard.writeText(url).then(() => {
+                alert("✅ Lien copié dans le presse-papiers !");
+            });
+        });
+    });
+});
+</script>
+
+
 {% endblock %}

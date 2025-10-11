@@ -255,7 +255,3 @@ select:focus {
     color: #ffcc00; /* Met en valeur le mot "tout en un seul endroit" */
 }
 
-.share-buttons .btn {
-    border-radius: 30px;
-    padding: 4px 10px;
-}

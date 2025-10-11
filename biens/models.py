@@ -7,6 +7,8 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     nom_complet = models.CharField(max_length=100, blank=True, null=True)
     telephone = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(max_length=100, blank=True, null=True)  # ✅ nouveau champ
+
 
     def __str__(self):
         return f"Profil de {self.user.username}"

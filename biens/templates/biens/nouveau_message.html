@@ -1,0 +1,21 @@
+<p>Bonjour {{ vendeur.username }},</p>
+
+<p>Vous avez reçu un nouveau message concernant votre bien <strong>{{ bien.titre }}</strong>.</p>
+
+<p><strong>Nom et prénom :</strong> {{ nom }}<br>
+<strong>Email :</strong> {{ email }}<br>
+<strong>Téléphone :</strong> {{ telephone }}</p>
+
+<p><strong>Message :</strong><br>{{ message }}</p>
+
+<p>👉 <a href="{{ site_url }}/dashboard/" 
+       style="background-color:#0a558c;color:white;padding:10px 16px;text-decoration:none;border-radius:6px;">
+       Accéder à mon espace vendeur
+   </a></p>
+
+<p>Ou copiez ce lien dans votre navigateur :<br>
+   <a href="{{ site_url }}/dashboard/">{{ site_url }}/dashboard/</a>
+</p>
+
+<p>--<br>
+L’équipe <strong>GeoImmoTech</strong></p>

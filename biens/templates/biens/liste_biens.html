@@ -332,39 +332,36 @@
                     <a href="{% url 'contacter_annonceur' bien.id %}" class="btn btn-primary">
                         <i class="bi bi-envelope"></i> Contacter
                     </a>
-                    <div class="modal-footer d-flex justify-content-between flex-wrap">
-    <div class="d-flex flex-wrap gap-2">
-        <a href="{% url 'contacter_annonceur' bien.id %}" class="btn btn-primary">
-            <i class="bi bi-envelope"></i> Contacter
-        </a>
-
-        <!-- 🔗 Boutons de partage -->
-        <div class="share-buttons">
-            <button class="btn btn-outline-success btn-sm share-whatsapp"
-                    data-title="{{ bien.titre }}"
-                    data-url="{{ request.build_absolute_uri }}">
-                <i class="bi bi-whatsapp"></i> WhatsApp
+                 
+        <!-- 🌍 Bouton principal de partage -->
+        <div class="dropdown">
+            <button class="btn btn-outline-success dropdown-toggle" type="button" id="shareDropdown{{ bien.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-share"></i> Partager
             </button>
-            <button class="btn btn-outline-primary btn-sm share-facebook"
-                    data-title="{{ bien.titre }}"
-                    data-url="{{ request.build_absolute_uri }}">
-                <i class="bi bi-facebook"></i> Facebook
-            </button>
-            <button class="btn btn-outline-info btn-sm share-twitter"
-                    data-title="{{ bien.titre }}"
-                    data-url="{{ request.build_absolute_uri }}">
-                <i class="bi bi-twitter"></i> Twitter
-            </button>
-            <button class="btn btn-outline-secondary btn-sm share-copy"
-                    data-url="{{ request.build_absolute_uri }}">
-                <i class="bi bi-link-45deg"></i> Copier le lien
-            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="shareDropdown{{ bien.id }}">
+                <li>
+                    <a class="dropdown-item share-whatsapp" href="#" data-title="{{ bien.titre }}" data-url="{{ request.build_absolute_uri }}">
+                        <i class="bi bi-whatsapp text-success"></i> WhatsApp
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item share-facebook" href="#" data-title="{{ bien.titre }}" data-url="{{ request.build_absolute_uri }}">
+                        <i class="bi bi-facebook text-primary"></i> Facebook
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item share-twitter" href="#" data-title="{{ bien.titre }}" data-url="{{ request.build_absolute_uri }}">
+                        <i class="bi bi-twitter text-info"></i> X (Twitter)
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item share-copy" href="#" data-url="{{ request.build_absolute_uri }}">
+                        <i class="bi bi-link-45deg"></i> Copier le lien
+                    </a>
+                </li>
+            </ul>
         </div>
-    </div>
-</div>
-
-
-               
                 </div>
             </div>
         </div>
@@ -502,9 +499,29 @@ document.addEventListener('DOMContentLoaded', function() {
         const map = L.map(mapContainer).setView([6.1319, 1.2228], 10);
         mapContainer._leaflet_map = map;
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
+        // Couches de carte
+        const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
+
+        const googleLayer = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0','mt1','mt2','mt3'],
+            attribution: '&copy; <a href="https://maps.google.com/">Google Maps</a>'
+        });
+
+        const googleSatellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0','mt1','mt2','mt3']
+        });
+        // Contrôle des couches
+        const baseLayers = {
+            "OpenStreetMap": osmLayer,
+            "Google Maps": googleLayer,
+            "Satellite": googleSatellite
+        };
+        L.control.layers(baseLayers).addTo(map);
+        
 
         // Ajouter le point de localisation
         if (coordsInput && coordsInput.value) {
