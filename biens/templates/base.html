@@ -62,6 +62,11 @@
           <li class="nav-item"><a class="nav-link text-white" href="{% url 'a_propos' %}">À propos</a></li>
           <li class="nav-item"><a class="nav-link text-white" href="{% url 'blog' %}">Blog</a></li>
           <li class="nav-item"><a class="nav-link text-white" href="{% url 'Expertise' %}">Expertise</a></li>
+          <li class="nav-item">
+  <a class="nav-link text-white" href="{% url 'carte_biens' %}">
+    <i class="bi bi-map"></i> Carte des biens
+  </a>
+</li>
 
           {% if user.is_authenticated %}
           <li class="nav-item dropdown">
@@ -95,8 +100,22 @@
   <div class="hero-content">
     <h1>Trouvez votre satisfaction immobilière chez nous</h1>
     <p>Vente, location,réservation, expertise : <strong>tout en un seul endroit</strong></p>
+    <div class="scrolling-text mt-4">
+      <span>
+         <strong>Dirigez-vous sur notre 
+        <a href="{% url 'blog' %}" class="text-warning fw-bold text-decoration-none">blog</a>
+        pour découvrir les actualités incontournables du foncier et de l’immobilier..</strong>
+      </span>
+    </div>
+
+    <!-- ✅ Bouton vers le blog -->
+    <a href="{% url 'blog' %}" class="btn btn-light btn-lg mt-4 shadow">
+      Explorer le Blog
+    </a>
   </div>
+  
 </section>
+
 
 
 
@@ -138,7 +157,7 @@
     <p class="mb-1">GeoImmoTech</p>
     <p class="mb-1">📞 <a href="tel:+22893647042" class="text-white">+228 93 64 70 42</a></p>
     <p class="mb-1">💬 <a href="https://wa.me/22893647042" class="text-white" target="_blank">WhatsApp</a></p>
-    <p class="mb-1">✉️ <a href="mailto:kambiapouwedeou684@gmail.com" class="text-white">contact2@geoImmoTech.tg</a></p>
+    <p class="mb-1">✉️ <a href="mailto:geimmobiliertogo@gmail.com" class="text-white">contact2@geoImmoTech.tg</a></p>
   </div>
 
   <div class="col-md-4 mb-3">
@@ -159,7 +178,73 @@
   </div>
 </div>
 
+<!-- Animation du texte horizontal -->
+<style>
+.hero-section {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  color: white;
+  text-align: center;
+  padding: 120px 20px;
+}
 
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.4); /* effet assombri */
+  z-index: 1; /* couche inférieure */
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2; /* contenu au-dessus de l'overlay */
+}
+
+.hero-section h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.hero-section p {
+  font-size: 1.2rem;
+}
+
+.btn.btn-light {
+  font-weight: 600;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn.btn-light:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255,255,255,0.4);
+}
+
+/* Texte défilant de gauche à droite */
+.scrolling-text {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+  margin-top: 20px;
+  font-size: 1.5rem;
+}
+
+.scrolling-text span {
+  display: inline-block;
+  padding-left: 100%;
+  animation: scrollLeft 15s linear infinite;
+}
+
+@keyframes scrollLeft {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+</style>
 
 
 

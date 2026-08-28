@@ -19,8 +19,14 @@
     <!-- Contenu -->
     <div class="mb-5">
         {{ article.contenu|linebreaks }}
+    <a href="{% url 'like_article' article.slug %}" class="btn btn-sm btn-outline-danger">
+      ❤️ J’aime
+    </a>
+        
     </div>
-
+  
+  
+  
     <hr class="my-4">
 
     <!-- 🔗 Section de partage -->

@@ -160,7 +160,8 @@ LOGIN_REDIRECT_URL = '/'  # ou la page après connexion
 LOGOUT_REDIRECT_URL = '/connexion/'  # après déconnexion
 
 # Paramètres d’envoi d’e-mail
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # ou autre fournisseur
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True

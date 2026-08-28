@@ -347,3 +347,18 @@ def activer_compte(request, uidb64, token):
         return render(request, 'registration/activation_reussie.html')
     else:
         return render(request, 'registration/activation_invalide.html')
+def like_article(request, slug):
+    article = get_object_or_404(Article, slug=slug)
+    article.likes += 1
+    article.save()
+    # Si tu veux un retour JSON (pour AJAX)
+    
+    # Sinon redirige simplement vers le même article
+    return redirect('detail_article', slug=slug)
+
+from django.shortcuts import render
+from .models import BienImmobilier
+
+def carte_biens(request):
+    biens = BienImmobilier.objects.all()
+    return render(request, 'biens/carte_biens.html', {'biens': biens})

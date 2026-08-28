@@ -238,14 +238,14 @@ select:focus {
 
 
 .hero-section .hero-content h1 {
-    font-size: 2rem;
+    font-size: 3rem;
     font-weight: 700;
     text-shadow: 2px 2px 4px rgba(41, 33, 33, 0.6);
     color: #ffd700; /* Exemple : jaune doré */
 }
 
 .hero-section .hero-content p {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     font-weight: 500;
     margin-top: 10px;
     color: #ffffff; /* Texte blanc ou autre couleur */

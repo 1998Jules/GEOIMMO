@@ -31,6 +31,8 @@
                     <p class="text-muted small">{{ article.date_publication|date:"d M Y" }}</p>
                     <p class="card-text">{{ article.contenu|truncatewords:25 }}</p>
                     <a href="{% url 'detail_article' article.slug %}" class="btn btn-outline-primary btn-sm">Lire l'article</a>
+                    <!-- Bouton Like -->
+    
                 </div>
             </div>
         </div>

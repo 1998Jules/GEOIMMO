@@ -5,8 +5,8 @@ from django.core.serializers import serialize
 import json
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    nom_complet = models.CharField(max_length=100, blank=True, null=True)
-    telephone = models.CharField(max_length=20, blank=True, null=True)
+    nom_complet = models.CharField(max_length=100, blank=True, null=False)
+    telephone = models.CharField(max_length=20, blank=True, null=False)
     email = models.EmailField(max_length=100, blank=True, null=True)  # ✅ nouveau champ
 
 
@@ -99,6 +99,7 @@ class Article(models.Model):
     auteur = models.ForeignKey(User, on_delete=models.CASCADE)
     date_publication = models.DateTimeField(auto_now_add=True)
     vues = models.PositiveIntegerField(default=0)
+    likes = models.PositiveIntegerField(default=0) 
 
     def __str__(self):
         return self.titre

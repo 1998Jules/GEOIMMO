@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Carte des biens{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+#map {
+    height: 600px;
+    border-radius: 10px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<h2 class="text-center mb-4">📍 Visualisation des biens sur la carte</h2>
+
+<div id="map"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+const map = L.map('map').setView([6.1319, 1.2228], 10);
+
+// Fond de carte
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap'
+}).addTo(map);
+
+// Données depuis Django
+const biens = [
+{% for bien in biens %}
+{
+    id: "{{ bien.id }}",
+    titre: "{{ bien.titre|escapejs }}",
+    prix: "{{ bien.prix }}",
+    type: "{{ bien.get_type_bien_display }}",
+    lat: "{{ bien.localisation.y|default:'' }}",
+    lng: "{{ bien.localisation.x|default:'' }}",
+    geojson: {{ bien.zone_geom.geojson|default:"null"|safe }},
+},
+{% endfor %}
+];
+biens.forEach(bien => {
+
+    // ✅ CAS 1 : POINT
+    if (bien.lat && bien.lng) {
+        const marker = L.marker([bien.lat, bien.lng]).addTo(map);
+
+        marker.bindPopup(`
+            <b>${bien.titre}</b><br>
+            Prix: ${bien.prix} FCFA
+        `);
+    }
+
+    // ✅ CAS 2 : POLYGONE (terrain)
+    if (bien.geojson) {
+        const layer = L.geoJSON(bien.geojson, {
+            style: {
+                color: "red",
+                weight: 2,
+                fillOpacity: 0.3
+            }
+        }).addTo(map);
+
+        layer.bindPopup(`
+            <b>${bien.titre}</b><br>
+            Type: ${bien.type}<br>
+            Prix: ${bien.prix} FCFA
+        `);
+    }
+
+});
+</script>
+
+{% endblock %}

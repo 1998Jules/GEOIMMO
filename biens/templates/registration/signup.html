@@ -61,6 +61,10 @@
         .login-link:hover {
             text-decoration: underline;
         }
+        .required-star {
+            color: red;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -70,27 +74,33 @@
             
             <form method="post" novalidate>
                 {% csrf_token %}
-                <input type="text" name="nom_complet" placeholder="Nom complet" required class="form-control mb-3">
-                <input type="text" name="telephone" placeholder="Téléphone" required class="form-control mb-3">
+                <label class="form-label">Nom complet <span class="required-star">*</span></label>
+                <input type="text" name="nom_complet" placeholder="" required class="form-control mb-3">
+                <label class="form-label">Téléphone <span class="required-star">*</span></label>
+                <input type="text" name="telephone" placeholder=" " required class="form-control mb-3">
                 <!-- Champ Username -->
+                <label class="form-label">Nom d'utilisateur <span class="required-star">*</span></label>
                 <div class="form-floating mb-3">
+                    
                     <input type="text" class="form-control" id="id_username" name="username" 
-                           placeholder="Nom d'utilisateur" required>
-                    <label for="id_username">Nom d'utilisateur</label>
+                           placeholder=" " required>
+                    <label for="id_username"> </label>
                     <div class="form-text">
                         150 caractères maximum. Lettres, chiffres et @/./+/-/_ uniquement.
                     </div>
                 </div>
+                <label class="form-label">Adresse e-mail </label>
                 <div class="form-floating mb-3">
     <input type="email" class="form-control" id="id_email" name="email"
-           placeholder="Adresse e-mail" required>
-    <label for="id_email">Adresse e-mail</label>
+           placeholder="" required>
+    <label for="id_email"></label>
 </div>
+<label class="form-label">Mot de passe <span class="required-star">*</span></label>
                 <!-- Champ Mot de passe -->
                 <div class="form-floating mb-3">
                     <input type="password" class="form-control" id="id_password1" name="password1" 
-                           placeholder="Mot de passe" required>
-                    <label for="id_password1">Mot de passe</label>
+                           placeholder="" required>
+                    <label for="id_password1"></label>
                 </div>
                 
                 <!-- Exigences mot de passe -->
@@ -113,12 +123,13 @@
                         <span>Ne peut pas être entièrement numérique</span>
                     </div>
                 </div>
+                <label class="form-label">Confirmation du mot de passe <span class="required-star">*</span></label>
                 
                 <!-- Confirmation mot de passe -->
                 <div class="form-floating mb-4">
                     <input type="password" class="form-control" id="id_password2" name="password2" 
-                           placeholder="Confirmation du mot de passe" required>
-                    <label for="id_password2">Confirmation du mot de passe</label>
+                           placeholder="" required>
+                    <label for="id_password2"></label>
                     <div class="form-text">
                         Entrez le même mot de passe que précédemment, pour vérification.
                     </div>
